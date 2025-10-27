@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Expenses | FikiriERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <div class.="row mb-4 align-items-center">
+    <div class="col-sm-6">
+      <h2 class="mb-0">All Expenses</h2>
+    </div>
+    <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+      <a href="{% url 'expense-create' %}" class="btn btn-lg" style="background-color: #e88c1f; color: #fff;" data-mdb-ripple-init>
+        <i class="fas fa-plus me-2"></i> Add New Expense
+      </a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border">
+    <div class.="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Project</th>
+              <th>Staff</th>
+              <th>Receipt</th>
+              <th class="text-end">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for expense in expenses %}
+            <tr>
+              <td>{{ expense.expense_date|date:"d M Y" }}</td>
+              <td>
+                <strong>{{ expense.description|truncatewords:20 }}</strong>
+                <br>
+                <small class="text-muted">Added by {{ expense.added_by.username }}</small>
+              </td>
+              <td>{{ expense.project.company_name|default:"N/A" }}</td>
+              <td>{{ expense.staff_member.username|default:"N/A" }}</td>
+              <td>
+                {% if expense.receipt %}
+                  <a href="{{ expense.receipt.url }}" target="_blank" class="btn btn-sm btn-outline-primary" data-mdb-ripple-init>
+                    View
+                  </a>
+                {% else %}
+                  <span class="text-muted">None</span>
+                {% endif %}
+              </td>
+              <td class.="text-end">
+                <strong style="color: #c9302c;">Ksh {{ expense.amount|floatformat:2 }}</strong>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center p-4">No expenses have been recorded yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% include '_pagination.html' %}
+
+</div>
+{% endblock %}

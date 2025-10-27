@@ -1,0 +1,7 @@
+# requirements.txt
+#
+# List of our project's Python dependencies
+
+django
+psycopg2-binary  # For connecting to PostgreSQL
+django-allauth   # For user authentication (password + Google)

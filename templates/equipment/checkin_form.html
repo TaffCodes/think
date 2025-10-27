@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Check-In Equipment | FikiriERP{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+      
+      <div class="card shadow-sm border">
+        <div class="card-header">
+          <h3 class="mb-0">Check-In Equipment</h3>
+        </div>
+        <div classs="card-body p-4 p-md-5">
+          <p class="lead">Processing returns for <strong>{{ request.project.company_name }}</strong> (Request #{{ request.pk }}).</p>
+          <p>Please set the return condition for each item that is still checked out.</p>
+
+          <form method="POST">
+            {% csrf_token %}
+            
+            {{ form.management_form }}
+            
+            {% if form.non_form_errors %}
+              <div class="alert alert-danger">{{ form.non_form_errors }}</div>
+            {% endif %}
+
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Item</th>
+                    <th>Category</th>
+                    <th>Checked Out At</th>
+                    <th style="width: 180px;">Return Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for log_form in form %}
+                    <tr>
+                      {{ log_form.id }}
+                      
+                      <td>
+                        <strong>{{ log_form.instance.item.name }}</strong>
+                      </td>
+                      <td>
+                        <span class="text-muted">{{ log_form.instance.item.category.name }}</span>
+                      </td>
+                      <td>
+                        {{ log_form.instance.checked_out_at|date:"d M Y, P" }}
+                      </td>
+                      <td>
+                        {{ log_form.return_status }}
+                        {% if log_form.return_status.errors %}
+                          <div class="text-danger small mt-1">{{ log_form.return_status.errors }}</div>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="d-grid gap-2">
+              <button type.="submit" class="btn btn-success btn-lg" data-mdb-ripple-init>
+                <i class="fas fa-clipboard-check me-2"></i> Confirm Check-In
+              </button>
+              <a href="{% url 'request-detail' request.pk %}" class="btn btn-outline-secondary btn-lg" data-mdb-ripple-init>
+                Cancel
+              </a>
+            </div>
+            
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

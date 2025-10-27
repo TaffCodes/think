@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Equipment Requests | FikiriERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <h2 class="mb-0">Equipment Requests</h2>
+    </div>
+    <div class="col-md-6 text-md-end">
+      <div class="btn-group shadow-0">
+        <a href="{% url 'request-list' %}" class="btn btn-outline-primary {% if not request.GET.status %}active{% endif %}">All</a>
+        <a href="?status=PENDING" class="btn btn-outline-primary {% if request.GET.status == 'PENDING' %}active{% endif %}">Pending</a>
+        <a href="?status=APPROVED" class="btn btn-outline-primary {% if request.GET.status == 'APPROVED' %}active{% endif %}">Approved</a>
+        <a href="?status=CHECKED_OUT" class="btn btn-outline-primary {% if request.GET.status == 'CHECKED_OUT' %}active{% endif %}">Checked Out</a>
+        <a href="?status=RETURNED" class="btn btn-outline-primary {% if request.GET.status == 'RETURNED' %}active{% endif %}">Returned</a>
+        <a href="?status=REJECTED" class="btn btn-outline-primary {% if request.GET.status == 'REJECTED' %}active{% endif %}">Rejected</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Status</th>
+              <th>Project</th>
+              <th>Requested By</th>
+              <th>Date Requested</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for req in requests %}
+            <tr>
+              <td>
+                <span class="badge rounded-pill 
+                  {% if req.status == 'PENDING' %} badge-warning
+                  {% elif req.status == 'APPROVED' %} badge-info
+                  {% elif req.status == 'CHECKED_OUT' %} badge-primary
+                  {% elif req.status == 'RETURNED' %} badge-success
+                  {% elif req.status == 'REJECTED' %} badge-danger
+                  {% else %} badge-secondary {% endif %}
+                ">{{ req.get_status_display }}</span>
+              </td>
+              <td>
+                <strong>{{ req.project.company_name|default:"N/A" }}</strong>
+              </td>
+              <td>{{ req.requested_by.username }}</td>
+              <td>{{ req.created_at|date:"d M Y, P" }}</td>
+              <td>
+                <a href="{% url 'request-detail' req.pk %}" class="btn btn-sm btn-outline-primary" data-mdb-ripple-init>
+                  View
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center p-4">No equipment requests found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% include '_pagination.html' %}
+
+</div>
+{% endblock %}

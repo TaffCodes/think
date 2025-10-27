@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}New Equipment Request | FikiriERP{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-9">
+      
+      <div class="card shadow-sm border">
+        <div class="card-header">
+          <h3 class="mb-0">Create New Equipment Request</h3>
+        </div>
+        <div class="card-body p-4 p-md-5">
+          
+          <form method="POST" id="request-form">
+            {% csrf_token %}
+            
+            <h5 class="mb-3">1. Select Project</h5>
+            <div class="mb-4">
+              {{ form.project }}
+              <label class="form-label" for="{{ form.project.id_for_label }}">{{ form.project.label }}</label>
+            </div>
+            {% if form.project.errors %}<div class="text-danger small mb-3">{{ form.project.errors }}</div>{% endif %}
+            {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+
+            <hr class="my-4">
+
+            <h5 class="mb-3">2. Add Equipment</h5>
+            
+            <div id="item-formset-container">
+              {{ item_formset.management_form }}
+              
+              {% if item_formset.non_form_errors %}
+                <div class="alert alert-danger">{{ item_formset.non_form_errors }}</div>
+              {% endif %}
+              
+              {% for form in item_formset.forms %}
+                <div class="item-form row align-items-center mb-3">
+                  {{ form.id }}
+                  
+                  <div class="col-md-6 mb-2 mb-md-0">
+                    {{ form.item }}
+                    <label class="form-label" for="{{ form.item.id_for_label }}">Item</label>
+                    <span class="availability-info text-muted small ms-2" style="display: none;"></span>
+                    {% if form.item.errors %}<div class="text-danger small">{{ form.item.errors }}</div>{% endif %}
+                  </div>
+                  
+                  <div class="col-md-3 mb-2 mb-md-0">
+                    <div class="form-outline" data-mdb-input-init>
+                      {{ form.quantity }}
+                      <label class="form-label" for="{{ form.quantity.id_for_label }}">Quantity</label>
+                    </div>
+                    {% if form.quantity.errors %}<div class="text-danger small">{{ form.quantity.errors }}</div>{% endif %}
+                  </div>
+                  
+                  <div class="col-md-3">
+                    {% if form.instance.pk or item_formset.can_delete_extra %}
+                      <div class_form-check">
+                        {{ form.DELETE }}
+                        <label class="form-check-label" for="{{ form.DELETE.id_for_label }}">Remove</label>
+                      </div>
+                    {% endif %}
+                  </div>
+                  {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+                </div>
+              {% endfor %}
+            </div>
+            
+            <button type="button" class="btn btn-outline-primary btn-sm" id="add-item-btn" data-mdb-ripple-init>
+              <i class="fas fa-plus me-1"></i> Add Another Item
+            </button>
+            
+            <div id="empty-form" class="item-form row align-items-center mb-3" style="display: none;">
+              {{ item_formset.empty_form.id }}
+              <div class="col-md-6 mb-2 mb-md-0">
+                {{ item_formset.empty_form.item }}
+                <label class="form-label" for="{{ item_formset.empty_form.item.id_for_label }}">Item</label>
+                <span class="availability-info text-muted small ms-2" style="display: none;"></span>
+              </div>
+              <div class="col-md-3 mb-2 mb-md-0">
+                <div class="form-outline">
+                  {{ item_formset.empty_form.quantity }}
+                  <label class="form-label" for="{{ item_formset.empty_form.quantity.id_for_label }}">Quantity</label>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-check">
+                  {{ item_formset.empty_form.DELETE }}
+                  <label class="form-check-label" for="{{ item_formset.empty_form.DELETE.id_for_label }}">Remove</label>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+            
+            <button type="submit" class="btn btn-lg btn-block" style="background-color: #3e4d21; color: white;" data-mdb-ripple-init>
+              Submit Request
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // This JSON data is passed directly from the Python view
+  const equipmentData = JSON.parse('{{ equipment_data_json|escapejs }}');
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('item-formset-container');
+
+    // --- Function to update availability info ---
+    function updateAvailabilityInfo(selectElement) {
+      const selectedItemId = selectElement.value;
+      const row = selectElement.closest('.item-form');
+      const infoSpan = row.querySelector('.availability-info');
+      
+      if (selectedItemId && equipmentData[selectedItemId] !== undefined) {
+        infoSpan.textContent = `(Available: ${equipmentData[selectedItemId]})`;
+        infoSpan.style.display = 'inline';
+      } else {
+        infoSpan.style.display = 'none';
+      }
+    }
+
+    // --- Dynamic Formset (Add/Remove) ---
+    const addBtn = document.getElementById('add-item-btn');
+    const totalFormsInput = document.querySelector('input[name="items-TOTAL_FORMS"]');
+    const emptyFormTemplate = document.getElementById('empty-form').cloneNode(true);
+    emptyFormTemplate.style.display = 'flex'; // Make it visible when added
+    
+    addBtn.addEventListener('click', function() {
+      const currentFormCount = parseInt(totalFormsInput.value, 10);
+      
+      // Clone the empty form
+      const newForm = emptyFormTemplate.cloneNode(true);
+      newForm.id = ''; // Remove ID to avoid duplicates
+      
+      // Update all '__prefix__' placeholders
+      newForm.innerHTML = newForm.innerHTML.replace(/__prefix__/g, currentFormCount);
+      
+      // Append to container
+      container.appendChild(newForm);
+      
+      // Update the total forms count
+      totalFormsInput.value = currentFormCount + 1;
+      
+      // Initialize MDB components for the new form
+      newForm.querySelectorAll('.form-outline').forEach((formOutline) => {
+        new mdb.Input(formOutline).init();
+      });
+      new mdb.Select(newForm.querySelector('select'));
+    });
+
+    // --- Event listener for all selects (existing and new) ---
+    container.addEventListener('change', function(e) {
+      if (e.target && e.target.classList.contains('item-select')) {
+        updateAvailabilityInfo(e.target);
+      }
+    });
+
+    // --- Initialize MDB components on page load ---
+    document.querySelectorAll('#item-formset-container .item-form').forEach(row => {
+      const select = row.querySelector('.item-select');
+      if (select && select.id.indexOf('__prefix__') === -1) {
+        new mdb.Select(select);
+        updateAvailabilityInfo(select); // Check availability on load
+      }
+    });
+    
+    // Initialize the main project select
+    const projectSelect = document.querySelector('#{{ form.project.id_for_label }}');
+    if (projectSelect) {
+      new mdb.Select(projectSelect);
+    }
+  });
+</script>
+{% endblock %}

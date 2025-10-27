@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ project.company_name }} | FikiriERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-9">
+      <h2 class="mb-0">{{ project.company_name }}</h2>
+      <p class="lead text-muted mb-0">
+        {{ project.date_from|date:"d M Y" }} &mdash; {{ project.date_to|date:"d M Y" }}
+      </p>
+    </div>
+    <div class="col-md-3 text-md-end mt-3 mt-md-0">
+      <span class="badge rounded-pill p-3 
+        {% if project.status == 'COMPLETED' or project.status == 'DELIVERED' %} badge-success
+        {% elif project.status == 'PAUSED' %} badge-warning
+        {% else %} badge-primary {% endif %}
+      " style="font-size: 1rem;">
+        {{ project.get_status_display }}
+      </span>
+    </div>
+  </div>
+
+  <div class="row">
+    
+    <div class="col-lg-8">
+      <div class="card shadow-sm border mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Project Details</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <strong><i class="fas fa-user-tie me-2"></i> Contact Person:</strong>
+              <p class="mb-0">{{ project.contact_person }}</p>
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong><i class="fas fa-map-marker-alt me-2"></i> Location:</strong>
+              <p class="mb-0">{{ project.location }}</p>
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong><i class="fas fa-concierge-bell me-2"></i> Services:</strong>
+              <ul class="list-unstyled mb-0">
+                {% for service in project.services.all %}
+                  <li>{{ service.name }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong><i class="fas fa-dollar-sign me-2"></i> Project Charges:</strong>
+              <h4 classs="mb-0" style="color: #3e4d21;">
+                Ksh {{ project.charges|floatformat:2 }}
+              </h4>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          Created on {{ project.created_at|date:"d M Y" }} by {{ project.created_by.username }}
+        </div>
+      </div>
+
+      <div class="card shadow-sm border mb-4">
+        <div class="card-header"><h5 class="mb-0">Financials</h5></div>
+        <div class="card-body text-muted">
+          <p>Financial overview and expense tracking will appear here.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="card shadow-sm border mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Assigned Team</h5>
+          
+          {% if user.is_staff %}
+          <button 
+            class="btn btn-sm btn-primary" 
+            data-mdb-toggle="modal" 
+            data-mdb-target="#addTeamModal"
+            data-mdb-ripple-init
+            data-mdb-tooltip-init
+            title="Assign Team Member">
+            <i class="fas fa-plus"></i>
+          </button>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            
+            {% for allocation in team %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{{ allocation.user.username }}</strong>
+                  <br>
+                  <small class="text-muted">
+                    Added by {{ allocation.allocated_by.username }} on {{ allocation.allocated_at|date:"d M Y" }}
+                  </small>
+                </div>
+                <a href="#" class="text-danger"><i class="fas fa-trash-alt"></i></a>
+              </li>
+            {% empty %}
+              <li class="list-group-item text-muted">No team members assigned yet.</li>
+            {% endfor %}
+            
+          </ul>
+        </div>
+      </div>
+
+      <div class="card shadow-sm border mb-4">
+        <div class="card-header"><h5 class="mb-0">Equipment Checked Out</h5></div>
+        <div class="card-body text-muted">
+          <p>A list of requested and checked-out equipment will appear here.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+{% if user.is_staff %}
+<div class="modal fade" id="addTeamModal" tabindex="-1" aria-labelledby="addTeamModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addTeamModalLabel">Add Team Member to Project</h5>
+        <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" action="{% url 'project-detail' project.pk %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <p>Select a user to add to the <strong>{{ project.company_name }}</strong> project.</p>
+          
+          <div class="mb-3">
+            {{ allocation_form.user }}
+            <label class="form-label" for="{{ allocation_form.user.id_for_label }}">User</label>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Close</button>
+          <button type="submit" class="btn" style="background-color: #3e4d21; color: white;">Add Team Member</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

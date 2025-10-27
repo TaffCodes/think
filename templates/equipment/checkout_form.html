@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Checkout | FikiriERP{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      
+      <div class="card shadow-sm border">
+        <div class="card-header">
+          <h3 class="mb-0">Confirm Equipment Checkout</h3>
+        </div>
+        <div class="card-body p-4 p-md-5">
+          <p class="lead">You are about to check out the following items for <strong>{{ request.project.company_name }}</strong> (Request #{{ request.pk }}).</p>
+          <p>Please verify the items and quantities below.</p>
+
+          <ul class="list-group list-group-flush mb-4">
+            {% for item in request.items.all %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{{ item.item.name }}</strong>
+                <br>
+                <small class="text-muted">{{ item.item.category.name }}</small>
+              </div>
+              <span class="badge badge-primary rounded-pill" style="font-size: 0.9rem;">
+                Qty: {{ item.quantity }}
+              </span>
+            </li>
+            {% endfor %}
+          </ul>
+
+          <p>Clicking "Confirm" will create a permanent log and mark this request as "Checked Out".</p>
+
+          <form method="POST" action="{% url 'request-checkout' request.pk %}">
+            {% csrf_token %}
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg" data-mdb-ripple-init>
+                <i class="fas fa-box-open me-2"></i> Confirm Check-Out
+              </button>
+              <a href="{% url 'request-detail' request.pk %}" class="btn btn-outline-secondary btn-lg" data-mdb-ripple-init>
+                Cancel
+              </a>
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

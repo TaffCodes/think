@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}New Project | FikiriERP{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+      
+      <div class="card shadow-sm border">
+        <div class="card-header">
+          <h3 class="mb-0">Create New Project</h3>
+        </div>
+        <div class="card-body p-4 p-md-5">
+          <form method="POST" novalidate>
+            {% csrf_token %}
+
+            <div class="row">
+              
+              <div class="col-md-12 mb-4">
+                <div class="form-outline" data-mdb-input-init>
+                  {{ form.company_name }}
+                  <label class="form-label" for="{{ form.company_name.id_for_label }}">Company Name</label>
+                </div>
+                {% if form.company_name.errors %}<div class="text-danger small">{{ form.company_name.errors }}</div>{% endif %}
+              </div>
+              
+              <div class="col-md-6 mb-4">
+                <div class="form-outline" data-mdb-input-init>
+                  {{ form.date_from }}
+                  <label class="form-label" for="{{ form.date_from.id_for_label }}">Start Date</label>
+                </div>
+                {% if form.date_from.errors %}<div class="text-danger small">{{ form.date_from.errors }}</div>{% endif %}
+              </div>
+              
+              <div class="col-md-6 mb-4">
+                <div class="form-outline" data-mdb-input-init>
+                  {{ form.date_to }}
+                  <label class="form-label" for="{{ form.date_to.id_for_label }}">End Date</label>
+                </div>
+                {% if form.date_to.errors %}<div class="text-danger small">{{ form.date_to.errors }}</div>{% endif %}
+              </div>
+              
+              <div class="col-md-6 mb-4">
+                <div class="form-outline" data-mdb-input-init>
+                  {{ form.location }}
+                  <label class="form-label" for="{{ form.location.id_for_label }}">Location</label>
+                </div>
+                {% if form.location.errors %}<div class="text-danger small">{{ form.location.errors }}</div>{% endif %}
+              </div>
+
+              <div class="col-md-6 mb-4">
+                <div class="form-outline" data-mdb-input-init>
+                  {{ form.contact_person }}
+                  <label class="form-label" for="{{ form.contact_person.id_for_label }}">Contact Person</label>
+                </div>
+                {% if form.contact_person.errors %}<div class="text-danger small">{{ form.contact_person.errors }}</div>{% endif %}
+              </div>
+              
+              <div class="col-md-6 mb-4">
+                <div class="form-outline" data-mdb-input-init>
+                  {{ form.charges }}
+                  <label class="form-label" for="{{ form.charges.id_for_label }}">Project Charges (Ksh)</label>
+                </div>
+                {% if form.charges.errors %}<div class="text-danger small">{{ form.charges.errors }}</div>{% endif %}
+              </div>
+
+              <div class="col-md-6 mb-4">
+                {{ form.status }}
+                <label class="form-label" for="{{ form.status.id_for_label }}">Project Status</label>
+                {% if form.status.errors %}<div class="text-danger small">{{ form.status.errors }}</div>{% endif %}
+              </div>
+
+              <div class="col-12 mb-4">
+                <p class="mb-2"><strong>Required Services</strong></p>
+                <div class="row">
+                  {% for checkbox in form.services %}
+                    <div class="col-md-6">
+                      <div class="form-check">
+                        {{ checkbox.tag }}
+                        <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                          {{ checkbox.choice_label }}
+                        </label>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+                {% if form.services.errors %}<div class="text-danger small mt-2">{{ form.services.errors }}</div>{% endif %}
+              </div>
+
+            </div>
+
+            <button type="submit" class.="btn btn-lg btn-block" style="background-color: #3e4d21; color: white;">
+              Save Project
+            </button>
+            <a href="{% url 'project-list' %}" class="btn btn-lg btn-outline-secondary">
+              Cancel
+            </a>
+            
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

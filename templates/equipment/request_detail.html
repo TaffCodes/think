@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}Request #{{ request.pk }} | FikiriERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="row mb-3 align-items-center">
+    <div class="col-md-8">
+      <a href="{% url 'request-list' %}" class="text-muted"><i class="fas fa-arrow-left me-2"></i>Back to List</a>
+      <h2 class="mb-0">Request #{{ request.pk }}</h2>
+      <p class="lead text-muted">
+        For project: <strong>{{ request.project.company_name|default:"N/A" }}</strong>
+      </p>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <span class="badge rounded-pill p-3 
+        {% if request.status == 'PENDING' %} badge-warning
+        {% elif request.status == 'APPROVED' %} badge-info
+        {% elif request.status == 'CHECKED_OUT' %} badge-primary
+        {% elif request.status == 'RETURNED' %} badge-success
+        {% elif request.status == 'REJECTED' %} badge-danger
+        {% else %} badge-secondary {% endif %}
+      " style="font-size: 1rem;">
+        {{ request.get_status_display }}
+      </span>
+    </div>
+  </div>
+
+  <div class="row">
+    
+    <div class="col-lg-8">
+      <div class="card shadow-sm border mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Requested Items</h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            {% for item in items %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{{ item.item.name }}</strong>
+                <br>
+                <small class="text-muted">{{ item.item.category.name }}</small>
+              </div>
+              <span class="badge badge-primary rounded-pill" style="font-size: 0.9rem;">
+                Qty: {{ item.quantity }}
+              </span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      {% if request.status == 'CHECKED_OUT' or request.status == 'PARTIAL_RETURN' or request.status == 'RETURNED' %}
+      <div class="card shadow-sm border mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Checkout Log</h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            {% for log in request.logs.all %}
+            <li class="list-group-item">
+              <strong>{{ log.quantity }} x {{ log.item.name }}</strong>
+              <small class="d-block text-muted">
+                Checked out by {{ log.checked_out_by.username }} on {{ log.checked_out_at|date:"d M Y, P" }}
+              </small>
+              {% if log.checked_in_at %}
+                <small class="d-block text-success">
+                  Checked in by {{ log.checked_in_by.username }} on {{ log.checked_in_at|date:"d M Y, P" }} (Status: {{ log.get_return_status_display }})
+                </small>
+              {% else %}
+                <small class="d-block text-danger">NOT YET RETURNED</small>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="card shadow-sm border mb-4">
+        <div class="card-header"><h5 class="mb-0">Details</h5></div>
+        <div class="card-body">
+          <strong>Requested By:</strong>
+          <p>{{ request.requested_by.username }}</p>
+          <strong>Date Requested:</strong>
+          <p>{{ request.created_at|date:"d M Y, P" }}</p>
+          {% if request.status == 'REJECTED' and request.admin_notes %}
+            <strong>Reason for Rejection:</strong>
+            <p class="text-danger">{{ request.admin_notes }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card shadow-sm border mb-4">
+        <div class="card-header"><h5 class="mb-0">Actions</h5></div>
+        <div class="card-body">
+          
+          {% if request.status == 'PENDING' %}
+            <form method="POST" action="{% url 'request-approve' request.pk %}" class="d-grid mb-2">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-success" data-mdb-ripple-init>Approve</button>
+            </form>
+            <button type="button" class="btn btn-danger btn-block" data-mdb-toggle="modal" data-mdb-target="#rejectModal" data-mdb-ripple-init>
+              Reject
+            </button>
+          {% endif %}
+
+          {% if request.status == 'APPROVED' %}
+            <p>This request is approved.</p>
+            <a href="{% url 'request-checkout' request.pk %}" class="btn btn-primary btn-block" data-mdb-ripple-init>
+              <i class="fas fa-box-open me-2"></i> Proceed to Check-Out
+            </a>
+            <button type="button" class="btn btn-outline-danger btn-block mt-2" data-mdb-toggle="modal" data-mdb-target="#rejectModal" data-mdb-ripple-init>
+              Reject
+            </button>
+          {% endif %}
+          
+          {% if request.status == 'CHECKED_OUT' or request.status == 'PARTIAL_RETURN' %}
+            <p>Items are currently checked out.</p>
+            
+            <a href="{% url 'request-checkin' request.pk %}" class="btn btn-success btn-block" data-mdb-ripple-init>
+              <i class="fas fa-clipboard-check me-2"></i> Go to Check-In Page
+            </a>
+            
+          {% endif %}
+          
+          {% if request.status == 'RETURNED' or request.status == 'REJECTED' %}
+            <p class="text-muted">No further actions available for this request.</p>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="POST" action="{% url 'request-reject' request.pk %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="rejectModalLabel">Reject Request #{{ request.pk }}</h5>
+          <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to reject this request? This action cannot be undone.</p>
+          <div class="form-outline" data-mdb-input-init>
+            <textarea class="form-control" name="admin_notes" id="admin_notes" rows="3"></textarea>
+            <label class="form-label" for="admin_notes">Reason for Rejection (Optional)</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Confirm Rejection</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

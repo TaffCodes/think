@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load socialaccount %} {% load allauth %}
+
+{% block title %}Sign Up | FikiriERP{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-6 col-lg-5">
+    <div class="card">
+      <div class="card-body p-4">
+        <h3 class="text-center mb-4">Create your Account</h3>
+
+        {% provider_login_url "google" as google_url %}
+        <a href="{{ google_url }}" class="btn btn-danger btn-lg btn-block mb-3">
+          <i class="fab fa-google me-2"></i> Sign up with Google
+        </a>
+
+        <div class="text-center mb-3">
+          <span class="text-muted">OR</span>
+        </div>
+
+        <form class="signup" method="POST" action="{% url 'account_signup' %}">
+          {% csrf_token %}
+          
+          {% for field in form %}
+            <div class="form-outline mb-4" data-mdb-input-init>
+              <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" required />
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</Slabel>
+            </div>
+            {% if field.errors %}
+              <div class="alert alert-danger p-2">
+                {{ field.errors.as_text }}
+              </div>
+            {% endif %}
+          {% endfor %}
+
+          <button type="submit" class="btn btn-lg btn-block" style="background-color: #3e4d21; color: white;">
+            Sign Up
+          </button>
+
+          <div class="text-center mt-3">
+            <p>Already have an account? <a href="{% url 'account_login' %}">Login</a></p>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
