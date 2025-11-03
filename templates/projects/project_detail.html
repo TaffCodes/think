@@ -21,6 +21,18 @@
       " style="font-size: 1rem;">
         {{ project.get_status_display }}
       </span>
+      
+      {% if user.is_staff %}
+      <button 
+        class="btn btn-sm btn-outline-secondary ms-2" 
+        data-mdb-toggle="modal" 
+        data-mdb-target="#updateStatusModal" 
+        data-mdb-ripple-init
+        title="Change Status">
+        <i class="fas fa-edit"></i>
+      </button>
+      {% endif %}
+      
     </div>
   </div>
 
@@ -51,7 +63,7 @@
             </div>
             <div class="col-md-6 mb-3">
               <strong><i class="fas fa-dollar-sign me-2"></i> Project Charges:</strong>
-              <h4 classs="mb-0" style="color: #3e4d21;">
+              <h4 class="mb-0" style="color: #3e4d21;">
                 Ksh {{ project.charges|floatformat:2 }}
               </h4>
             </div>
@@ -59,13 +71,48 @@
         </div>
         <div class="card-footer text-muted">
           Created on {{ project.created_at|date:"d M Y" }} by {{ project.created_by.username }}
+          {% if project.is_paid %}
+            <span class="badge badge-success-subtle text-success-emphasis ms-2">Paid</span>
+          {% else %}
+            <span class="badge badge-warning-subtle text-warning-emphasis ms-2">Not Paid</span>
+          {% endif %}
         </div>
       </div>
 
       <div class="card shadow-sm border mb-4">
         <div class="card-header"><h5 class="mb-0">Financials</h5></div>
-        <div class="card-body text-muted">
-          <p>Financial overview and expense tracking will appear here.</p>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-4">
+              <h6 class="text-muted">Total Charges</h6>
+              <h4 class="text-success">Ksh {{ project.charges|floatformat:2 }}</h4>
+            </div>
+            <div class="col-4">
+              <h6 class="text-muted">Total Expenses</h6>
+              <h4 class="text-danger">Ksh {{ total_expenses|floatformat:2 }}</h4>
+            </div>
+            <div class="col-4">
+              <h6 class="text-muted">Net Profit</h6>
+              <h4 style="color: {% if profit < 0 %}#c9302c{% else %}#3e4d21{% endif %};">
+                Ksh {{ profit|floatformat:2 }}
+              </h4>
+            </div>
+          </div>
+          <hr>
+          <h6 class="mt-4">Recorded Expenses for this Project:</h6>
+          <ul class="list-group list-group-flush">
+            {% for expense in expenses %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  {{ expense.description }}
+                  <small class="d-block text-muted">{{ expense.expense_date|date:"d M Y" }}</small>
+                </div>
+                <strong class="text-danger">Ksh {{ expense.amount|floatformat:2 }}</strong>
+              </li>
+            {% empty %}
+              <li class="list-group-item text-muted">No expenses recorded for this project yet.</li>
+            {% endfor %}
+          </ul>
         </div>
       </div>
     </div>
@@ -74,45 +121,54 @@
       <div class="card shadow-sm border mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">Assigned Team</h5>
-          
           {% if user.is_staff %}
-          <button 
-            class="btn btn-sm btn-primary" 
-            data-mdb-toggle="modal" 
-            data-mdb-target="#addTeamModal"
-            data-mdb-ripple-init
-            data-mdb-tooltip-init
-            title="Assign Team Member">
+          <button class="btn btn-sm btn-primary" data-mdb-toggle="modal" data-mdb-target="#addTeamModal" data-mdb-ripple-init>
             <i class="fas fa-plus"></i>
           </button>
           {% endif %}
         </div>
         <div class="card-body">
           <ul class="list-group list-group-flush">
-            
             {% for allocation in team %}
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <strong>{{ allocation.user.username }}</strong>
-                  <br>
-                  <small class="text-muted">
-                    Added by {{ allocation.allocated_by.username }} on {{ allocation.allocated_at|date:"d M Y" }}
-                  </small>
-                </div>
-                <a href="#" class="text-danger"><i class="fas fa-trash-alt"></i></a>
+              <li class="list-group-item">
+                <strong>{{ allocation.user.username }}</strong>
+                <br>
+                <small class="text-muted">
+                  Added by {{ allocation.allocated_by.username }}
+                </small>
               </li>
             {% empty %}
               <li class="list-group-item text-muted">No team members assigned yet.</li>
             {% endfor %}
-            
           </ul>
         </div>
       </div>
 
       <div class="card shadow-sm border mb-4">
-        <div class="card-header"><h5 class="mb-0">Equipment Checked Out</h5></div>
-        <div class="card-body text-muted">
-          <p>A list of requested and checked-out equipment will appear here.</p>
+        <div class="card-header"><h5 class="mb-0">Equipment Requests</h5></div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            {% for req in equipment_requests %}
+              <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                  <a href="{% url 'request-detail' req.pk %}">
+                    <strong>Request #{{ req.pk }}</strong>
+                  </a>
+                  <span class="badge rounded-pill 
+                    {% if req.status == 'PENDING' %} badge-warning-subtle text-warning-emphasis
+                    {% elif req.status == 'APPROVED' %} badge-info-subtle text-info-emphasis
+                    {% elif req.status == 'CHECKED_OUT' %} badge-primary-subtle text-primary-emphasis
+                    {% elif req.status == 'RETURNED' %} badge-success-subtle text-success-emphasis
+                    {% elif req.status == 'REJECTED' %} badge-danger-subtle text-danger-emphasis
+                    {% else %} badge-secondary-subtle text-secondary-emphasis {% endif %}
+                  ">{{ req.get_status_display }}</span>
+                </div>
+                <small class="text-muted">{{ req.created_at|date:"d M Y" }} by {{ req.requested_by.username }}</small>
+              </li>
+            {% empty %}
+              <li class="list-group-item text-muted">No equipment requests for this project.</li>
+            {% endfor %}
+          </ul>
         </div>
       </div>
     </div>
@@ -120,33 +176,64 @@
   </div>
 </div>
 
-
 {% if user.is_staff %}
-<div class="modal fade" id="addTeamModal" tabindex="-1" aria-labelledby="addTeamModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addTeamModalLabel">Add Team Member to Project</h5>
-        <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
-      </div>
+<div class.="modal fade" id="addTeamModal" tabindex="-1" aria-labelledby="addTeamModalLabel" aria-hidden="true">
+  <div class.="modal-dialog modal-dialog-centered">
+    <div class.="modal-content">
       <form method="POST" action="{% url 'project-detail' project.pk %}">
         {% csrf_token %}
-        <div class="modal-body">
-          <p>Select a user to add to the <strong>{{ project.company_name }}</strong> project.</p>
-          
-          <div class="mb-3">
-            {{ allocation_form.user }}
-            <label class="form-label" for="{{ allocation_form.user.id_for_label }}">User</label>
-          </div>
-
+        <input type="hidden" name="action" value="allocate_team">
+        
+        <div class.="modal-header">
+          <h5 class.="modal-title" id="addTeamModalLabel">Add Team Member to Project</h5>
+          <button type.="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Close</button>
-          <button type="submit" class="btn" style="background-color: #3e4d21; color: white;">Add Team Member</button>
+        <div class.="modal-body">
+          <p>Select a user to add to the <strong>{{ project.company_name }}</strong> project.</p>
+          <div class.="mb-3">
+            {{ allocation_form.user }}
+            <label class.="form-label" for="{{ allocation_form.user.id_for_label }}">User</label>
+          </div>
+        </div>
+        <div class.="modal-footer">
+          <button type.="button" class="btn btn-secondary" data-mdb-dismiss="modal">Close</button>
+          <button type.="submit" class="btn" style="background-color: #3e4d21; color: white;">Add Team Member</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 {% endif %}
+
+{% if user.is_staff %}
+<div class.="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+  <div class.="modal-dialog modal-dialog-centered">
+    <div class.="modal-content">
+      <form method="POST" action="{% url 'project-detail' project.pk %}">
+        {% csrf_token %}
+        <input type.="hidden" name="action" value="update_status">
+        
+        <div class.="modal-header">
+          <h5 class.="modal-title" id="updateStatusModalLabel">Update Project Status</h5>
+          <button type.="button" class.="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class.="modal-body">
+          <p>Select the new status for <strong>{{ project.company_name }}</strong>.</p>
+          
+          <div class.="mb-3">
+            {{ status_form.status }}
+            <label class.="form-label" for="{{ status_form.status.id_for_label }}">Status</label>
+          </div>
+
+        </div>
+        <div class.="modal-footer">
+          <button type.="button" class="btn btn-secondary" data-mdb-dismiss="modal">Cancel</button>
+          <button type.="submit" class="btn" style="background-color: #3e4d21; color: white;">Save Status</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 {% endblock %}

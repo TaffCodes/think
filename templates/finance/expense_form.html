@@ -3,22 +3,22 @@
 {% block title %}New Expense | FikiriERP{% endblock %}
 
 {% block content %}
-<div class.="container">
+<div class="container">
   <div class="row justify-content-center">
-    <div class.="col-lg-10 col-xl-8">
+    <div class="col-lg-10 col-xl-8">
       
       <div class="card shadow-sm border">
         <div class="card-header">
-          <h3 class.="mb-0">Record New Expense</h3>
+          <h3 class="mb-0">Record New Expense</h3>
         </div>
-        <div class.="card-body p-4 p-md-5">
+        <div class="card-body p-4 p-md-5">
           <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
-            <div class.="row">
+            <div class="row">
               
               <div class="col-12 mb-4">
-                <div class.="form-outline" data-mdb-input-init>
+                <div class="form-outline" data-mdb-input-init>
                   {{ form.description }}
                   <label class="form-label" for="{{ form.description.id_for_label }}">Description</label>
                 </div>
@@ -26,9 +26,9 @@
               </div>
               
               <div class="col-md-6 mb-4">
-                <div class.="form-outline" data-mdb-input-init>
+                <div class="form-outline" data-mdb-input-init>
                   {{ form.amount }}
-                  <label class.="form-label" for="{{ form.amount.id_for_label }}">Amount (Ksh)</label>
+                  <label class="form-label" for="{{ form.amount.id_for_label }}">Amount (Ksh)</label>
                 </div>
                 {% if form.amount.errors %}<div class="text-danger small">{{ form.amount.errors }}</div>{% endif %}
               </div>
@@ -36,24 +36,30 @@
               <div class="col-md-6 mb-4">
                 <div class="form-outline" data-mdb-input-init>
                   {{ form.expense_date }}
-                  <label class="form-label" for="{{ form.expense_date.id_for_label }}">Expense Date</label>
+                  <label classs="form-label" for="{{ form.expense_date.id_for_label }}">Expense Date</label>
                 </div>
                 {% if form.expense_date.errors %}<div class="text-danger small">{{ form.expense_date.errors }}</div>{% endif %}
               </div>
+
+              <div class="col-md-6 mb-4">
+                {{ form.account }}
+                <label class="form-label" for="{{ form.account.id_for_label }}">{{ form.account.label }}</label>
+                {% if form.account.errors %}<div class="text-danger small">{{ form.account.errors }}</div>{% endif %}
+              </div>
               
-              <div class.="col-md-6 mb-4">
+              <div class="col-md-6 mb-4">
                 {{ form.project }}
                 <label class="form-label" for="{{ form.project.id_for_label }}">Link to Project (Optional)</label>
                 {% if form.project.errors %}<div class="text-danger small">{{ form.project.errors }}</div>{% endif %}
               </div>
 
-              <div class.="col-md-6 mb-4">
+              <div class="col-md-6 mb-4">
                 {{ form.staff_member }}
                 <label class="form-label" for="{{ form.staff_member.id_for_label }}">Staff (Optional, for advances)</label>
-                {% if form.staff_member.errors %}<div class.text-danger small">{{ form.staff_member.errors }}</div>{% endif %}
+                {% if form.staff_member.errors %}<div class="text-danger small">{{ form.staff_member.errors }}</div>{% endif %}
               </div>
               
-              <div class="col-12 mb-4">
+              <div class="col-md-6 mb-4">
                 <label class="form-label" for="{{ form.receipt.id_for_label }}">Upload Receipt (Optional)</label>
                 {{ form.receipt }}
                 {% if form.receipt.errors %}<div class="text-danger small">{{ form.receipt.errors }}</div>{% endif %}
@@ -75,4 +81,29 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // This script initializes the new MDB Select dropdowns
+  document.addEventListener('DOMContentLoaded', function () {
+    // Initialize the Project select
+    const projectSelect = document.querySelector('#{{ form.project.id_for_label }}');
+    if (projectSelect) {
+      new mdb.Select(projectSelect);
+    }
+    
+    // Initialize the Staff select
+    const staffSelect = document.querySelector('#{{ form.staff_member.id_for_label }}');
+    if (staffSelect) {
+      new mdb.Select(staffSelect);
+    }
+
+    // Initialize the Account select
+    const accountSelect = document.querySelector('#{{ form.account.id_for_label }}');
+    if (accountSelect) {
+      new mdb.Select(accountSelect);
+    }
+  });
+</script>
 {% endblock %}

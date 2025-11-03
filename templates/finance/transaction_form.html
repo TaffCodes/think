@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}New Transaction | FikiriERP{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+      
+      <div class="card shadow-sm border">
+        <div class="card-header">
+          <h3 class="mb-0">Create Manual Transaction</h3>
+        </div>
+        <div class="card-body p-4 p-md-5">
+          <p class="text-muted">
+            Use this form to add initial funds, withdraw cash, or transfer money between accounts.
+          </p>
+          <ul class="text-muted">
+            <li><strong>To add funds (deposit):</strong> Set 'To Account', leave 'From Account' blank.</li>
+            <li><strong>To log funds (withdrawal):</strong> Set 'From Account', leave 'To Account' blank.</li>
+            <li><strong>To transfer funds:</strong> Set both 'From Account' and 'To Account'.</li>
+          </ul>
+          <hr>
+          
+          <form method="POST">
+            {% csrf_token %}
+            <div class="row">
+              
+              <div class="col-12 mb-4">
+                <div class="form-outline" data-mdb-input-init>
+                  {{ form.description }}
+                  <label class="form-label" for="{{ form.description.id_for_label }}">Description</label>
+                </div>
+                {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors }}</div>{% endif %}
+              </div>
+              
+              <div class="col-12 mb-4">
+                <div class="form-outline" data-mdb-input-init>
+                  {{ form.amount }}
+                  <label class="form-label" for="{{ form.amount.id_for_label }}">Amount (Ksh)</label>
+                </div>
+                {% if form.amount.errors %}<div class="text-danger small">{{ form.amount.errors }}</div>{% endif %}
+              </div>
+              
+              <div class="col-md-6 mb-4">
+                {{ form.from_account }}
+                <label class="form-label" for="{{ form.from_account.id_for_label }}">{{ form.from_account.label }}</label>
+                {% if form.from_account.errors %}<div class="text-danger small">{{ form.from_account.errors }}</div>{% endif %}
+              </div>
+
+              <div class="col-md-6 mb-4">
+                {{ form.to_account }}
+                <label class="form-label" for="{{ form.to_account.id_for_label }}">{{ form.to_account.label }}</label>
+                {% if form.to_account.errors %}<div class="text-danger small">{{ form.to_account.errors }}</div>{% endif %}
+              </div>
+              
+              <div class="col-12 mb-4">
+                {{ form.project }}
+                <label class="form-label" for="{{ form.project.id_for_label }}">Link to Project (Optional)</label>
+                {% if form.project.errors %}<div class="text-danger small">{{ form.project.errors }}</div>{% endif %}
+              </div>
+
+            </div>
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-lg btn-block" style="background-color: #3e4d21; color: white;" data-mdb-ripple-init>
+              Save Transaction
+            </button>
+            <a href="{% url 'account-list' %}" class="btn btn-lg btn-outline-secondary" data-mdb-ripple-init>
+              Cancel
+            </a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // This script initializes the MDB Select dropdowns
+  document.addEventListener('DOMContentLoaded', function () {
+    const fromSelect = document.querySelector('#{{ form.from_account.id_for_label }}');
+    if (fromSelect) new mdb.Select(fromSelect);
+    
+    const toSelect = document.querySelector('#{{ form.to_account.id_for_label }}');
+    if (toSelect) new mdb.Select(toSelect);
+
+    const projectSelect = document.querySelector('#{{ form.project.id_for_label }}');
+    if (projectSelect) new mdb.Select(projectSelect);
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,12 @@
+Hello {{ user.username }},
+
+Here is the equipment checkout sheet for FikiriERP Request #{{ request.pk }}.
+
+Project: {{ request.project.company_name }}
+Requested By: {{ request.requested_by.username }}
+Checked Out By: {{ request.logs.first.checked_out_by.username|default:"N/A" }}
+Checkout Date: {{ request.logs.first.checked_out_at|date:"d M Y" }}
+
+The PDF is attached.
+
+- The FikiriERP System

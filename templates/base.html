@@ -23,19 +23,36 @@
   <style>
     /* This is our primary brand color from the logo */
     .navbar-green {
-      background-color: #3e4d21; /* Approximate Green - replace with exact hex */
+      background-color: #3e4d21; /* Your brand green */
     }
     .navbar-brand, .nav-link {
         color: #ffffff !important;
     }
     .nav-link:hover {
-        color: #e88c1f !important; /* Approximate Orange for hover */
+        color: #e88c1f !important; /* Your brand orange for hover */
+    }
+    .nav-link.active {
+        font-weight: bold;
+        color: #e88c1f !important; /* Your brand orange for active */
+    }
+    /* Ensure content doesn't get hidden under the navbar on small screens */
+    body {
+        padding-top: 56px;
+    }
+    @media (min-width: 992px) {
+        body {
+            padding-top: 60px; /* Adjust if your navbar height changes */
+        }
+    }
+    /* Ensure alerts are clickable */
+    .alert {
+        z-index: 1050;
     }
   </style>
 </head>
 <body>
 
-  <nav class="navbar navbar-expand-lg navbar-dark navbar-green shadow-1">
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-green shadow-1 fixed-top">
     <div class="container-fluid">
       
       <a class="navbar-brand" href="{% url 'dashboard' %}" style="font-weight: bold;">
@@ -50,6 +67,7 @@
         aria-controls="main-nav-links"
         aria-expanded="false"
         aria-label="Toggle navigation"
+        data-mdb-ripple-init  /* This was also missing, but the script below is the main fix */
       >
         <i class="fas fa-bars"></i>
       </button>
@@ -57,19 +75,22 @@
       {% if user.is_authenticated %}
       <div class="collapse navbar-collapse" id="main-nav-links">
         <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-          <li class.="nav-item">
+          <li class="nav-item">
             <a class="nav-link {% if request.resolver_match.view_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">Dashboard</a>
           </li>
-          <li class="nav-item">
-            <a class.="nav-link {% if 'project' in request.resolver_match.app_names %}active{% endif %}" href="{% url 'project-list' %}">Projects</a>
-          </li>
-          
-          <li class="nav-item">
-            <a class="nav-link {% if 'finance' in request.resolver_match.app_names %}active{% endif %}" href="{% url 'expense-list' %}">Finance</a>
-          </li>
-          
           <li class.="nav-item">
-            <a class="nav-link" href="#">Equipment</a> </li>
+            <a class="nav-link {% if 'project' in request.resolver_match.app_names %}active{% endif %}" href="{% url 'project-list' %}">Projects</a>
+          </li>
+          
+          <li class="nav-item">
+            <a class="nav-link {% if 'finance' in request.resolver_match.app_names %}active{% endif %}" href="{% url 'account-list' %}">Finance</a>
+          </li>
+          
+          <li class="nav-item">
+            <a class="nav-link {% if 'equipment' in request.resolver_match.app_names and 'equipment-list' in request.resolver_match.view_name %}active{% endif %}" href="{% url 'equipment-list' %}">
+              Equipment
+            </a>
+          </li>
           
           {% if user.is_staff %}
           <li class="nav-item">
@@ -78,6 +99,7 @@
             </a>
           </li>
           {% endif %}
+          
         </ul>
       </div>
       {% endif %}
@@ -85,17 +107,17 @@
       <div class="d-flex align-items-center">
         
         {% if user.is_authenticated %}
-          <span class="navbar-text me-3" style="color: #f0f0f0;">
+          <span class="navbar-text me-3 d-none d-sm-inline" style="color: #f0f0f0;">
             Hi, {{ user.username }}
           </span>
-          <a href="{% url 'account_logout' %}" class="btn btn-outline-light me-3">
+          <a href="{% url 'account_logout' %}" class="btn btn-outline-light me-3" data-mdb-ripple-init>
             Logout
           </a>
         {% else %}
-          <a href="{% url 'account_login' %}" class="btn btn-outline-light me-2">
+          <a href="{% url 'account_login' %}" classs="btn btn-outline-light me-2" data-mdb-ripple-init>
             Login
           </a>
-          <a href="{% url 'account_signup' %}" class="btn btn-light">
+          <a href="{% url 'account_signup' %}" class="btn btn-light" data-mdb-ripple-init>
             Sign Up
           </a>
         {% endif %}
@@ -124,6 +146,7 @@
         </div>
       </div>
     {% endif %}
+    
     {% block content %}
     {% endblock %}
   </main>
@@ -135,5 +158,46 @@
 
   {% block scripts %}
   {% endblock %}
+
+  <script type_="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize all Form Outlines
+      document.querySelectorAll('.form-outline').forEach((formOutline) => {
+        new mdb.Input(formOutline).init();
+      });
+
+      // Initialize all Dropdowns
+      document.querySelectorAll('.dropdown-toggle').forEach((dropdown) => {
+        new mdb.Dropdown(dropdown);
+      });
+
+      // Initialize all Ripples (buttons, links)
+      document.querySelectorAll('[data-mdb-ripple-init]').forEach((ripple) => {
+        new mdb.Ripple(ripple).init();
+      });
+
+      // Initialize all Selects (dropdown forms)
+      document.querySelectorAll('select').forEach((select) => {
+        // We only initialize selects that are not part of a formset template
+        if (select.id && !select.id.includes('__prefix__')) {
+          new mdb.Select(select);
+        }
+      });
+      
+      // Initialize all Alerts
+      document.querySelectorAll('.alert-dismissible').forEach((alert) => {
+        new mdb.Alert(alert);
+      });
+
+      // ** THIS IS THE FIX **
+      // Initialize all Collapse components (for the mobile navbar)
+      document.querySelectorAll('.collapse').forEach((collapse) => {
+        new mdb.Collapse(collapse, {
+          toggle: false // We set toggle to false so it only opens when the button is clicked
+        });
+      });
+    });
+  </script>
+
 </body>
 </html>

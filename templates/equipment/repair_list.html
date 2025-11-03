@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Repair Center | FikiriERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <a href="{% url 'equipment-list' %}" class="text-muted"><i class="fas fa-arrow-left me-2"></i>Back to Inventory</a>
+      <h2 class="mb-0">Repair Center</h2>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <p class="text-muted mb-0">Items marked as "Damaged" or "Lost" appear here.</p>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Item Name</th>
+              <th>Status</th>
+              <th>Category</th>
+              <th>Request #</th>
+              <th>Date Reported</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in damaged_items %}
+            <tr>
+              <td>
+                <strong>{{ log.item.name }}</strong>
+              </td>
+              <td>
+                <span class="badge rounded-pill {% if log.return_status == 'DAMAGED' %}badge-danger{% else %}badge-dark{% endif %}">
+                  {{ log.get_return_status_display }}
+                </span>
+              </td>
+              <td>
+                <span class="text-muted">{{ log.item.category.name|default:'N/A' }}</span>
+              </td>
+              <td>
+                <a href="{% url 'request-detail' log.request.pk %}">
+                  Request #{{ log.request.pk }}
+                </a>
+              </td>
+              <td>
+                {{ log.checked_in_at|date:"d M Y, P" }}
+              </td>
+              <td>
+                <form 
+                  method="POST" 
+                  action="{% url 'mark-as-repaired' log.pk %}"
+                  onsubmit="return confirm('Are you sure this item has been repaired and is ready for use?');"
+                >
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-success" data-mdb-ripple-init>
+                    <i class="fas fa-check me-1"></i> Mark as Repaired
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center p-4">
+                <h5 class="text-success mb-0">No damaged items!</h5>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% include '_pagination.html' %}
+
+</div>
+{% endblock %}

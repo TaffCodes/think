@@ -1,5 +1,5 @@
 # projects/forms.py
-# (Edit this file)
+# (This is the complete, up-to-date file)
 
 from django import forms
 from django.contrib.auth.models import User
@@ -7,9 +7,8 @@ from .models import Project, ProjectAllocation, Service
 
 class ProjectForm(forms.ModelForm):
     """
-    A form for creating and updating Projects, styled for MDB.
+    Form for creating new projects.
     """
-    
     services = forms.ModelMultipleChoiceField(
         queryset=Service.objects.all(),
         widget=forms.CheckboxSelectMultiple,
@@ -34,24 +33,24 @@ class ProjectForm(forms.ModelForm):
         }
         
     def __init__(self, *args, **kwargs):
+        """
+        Add MDB 'form-outline' and 'mb-4' to all fields.
+        """
         super().__init__(*args, **kwargs)
+        
         non_checkbox_fields = [f for f in self.fields if f != 'services']
+        
         for field_name in non_checkbox_fields:
             self.fields[field_name].widget.attrs.update({
                 'class': self.fields[field_name].widget.attrs.get('class', '') + ' form-control-lg'
             })
+            
         self.fields['services'].widget.attrs.update({'class': 'form-check-input'})
-
-
-# --- ADD THIS NEW FORM ---
 
 class ProjectAllocationForm(forms.ModelForm):
     """
-    A form for allocating a user to a project.
+    Form for allocating a user to a project.
     """
-    
-    # We only want to show the 'user' field in the form.
-    # We filter to only show active users.
     user = forms.ModelChoiceField(
         queryset=User.objects.filter(is_active=True),
         widget=forms.Select(attrs={'class': 'form-select form-select-lg'})
@@ -60,3 +59,14 @@ class ProjectAllocationForm(forms.ModelForm):
     class Meta:
         model = ProjectAllocation
         fields = ['user']
+
+class UpdateProjectStatusForm(forms.ModelForm):
+    """
+    A simple form to update only the status of a project.
+    """
+    class Meta:
+        model = Project
+        fields = ['status']
+        widgets = {
+            'status': forms.Select(attrs={'class': 'form-select'})
+        }

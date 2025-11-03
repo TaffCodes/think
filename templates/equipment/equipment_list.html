@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Equipment Inventory | FikiriERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <div class="row mb-4 align-items-center">
+    
+    <div class="col-md-4">
+      <h2 class="mb-0">Equipment Inventory</h2>
+    </div>
+    
+    <div class="col-md-8 text-md-end">
+      
+      {% if user.is_staff %}
+      <a href="{% url 'repair-list' %}" class="btn btn-warning me-2" data-mdb-ripple-init>
+        <i class="fas fa-tools me-2"></i> Repair Center
+      </a>
+      {% endif %}
+
+      <form method="GET" action="{% url 'equipment-list' %}" class="d-inline-block" style="min-width: 300px;">
+        <div class="input-group">
+          <div class="form-outline" data-mdb-input-init>
+            <input type="search" id="search-input" name="search" class="form-control" value="{{ request.GET.search|default:'' }}" />
+            <label class="form-label" for="search-input">Search by Name</label>
+          </div>
+          <button type="submit" class="btn btn-primary" data-mdb-ripple-init>
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Item Name</th>
+              <th>Category</th>
+              <th class="text-center">Total Owned</th>
+              <th class="text-center">Damaged/Lost</th>
+              <th class="text-center">Committed</th>
+              <th class="text-center">Available</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              <td>
+                <strong>{{ item.name }}</strong>
+              </td>
+              <td>
+                <span class="badge badge-secondary">{{ item.category.name|default:'N/A' }}</span>
+              </td>
+              <td class="text-center">
+                {{ item.total_quantity }}
+              </td>
+              <td class="text-center">
+                {% with damaged_count=item.get_damaged_quantity %}
+                  {% if damaged_count > 0 %}
+                    <span class="text-danger">{{ damaged_count }}</span>
+                  {% else %}
+                    <span class="text-muted">{{ damaged_count }}</span>
+                  {% endif %}
+                {% endwith %}
+              </td>
+              <td class="text-center">
+                {% with committed_count=item.get_committed_quantity %}
+                  {% if committed_count > 0 %}
+                    <span class="text-warning">{{ committed_count }}</span>
+                  {% else %}
+                    <span class="text-muted">{{ committed_count }}</span>
+                  {% endif %}
+                {% endwith %}
+              </td>
+              <td class="text-center">
+                {% with available_count=item.available_quantity %}
+                  <strong class="h5 mb-0 {% if available_count <= 0 %}text-danger{% else %}text-success{% endif %}">
+                    {{ available_count }}
+                  </strong>
+                {% endwith %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center p-4">
+                No equipment items found.
+                {% if not request.GET.search %}
+                  Please add items in the admin panel.
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% include '_pagination.html' %}
+
+</div>
+{% endblock %}

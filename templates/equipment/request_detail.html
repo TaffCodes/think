@@ -18,6 +18,7 @@
         {% if request.status == 'PENDING' %} badge-warning
         {% elif request.status == 'APPROVED' %} badge-info
         {% elif request.status == 'CHECKED_OUT' %} badge-primary
+        {% elif request.status == 'PARTIAL_RETURN' %} badge-info
         {% elif request.status == 'RETURNED' %} badge-success
         {% elif request.status == 'REJECTED' %} badge-danger
         {% else %} badge-secondary {% endif %}
@@ -61,7 +62,9 @@
           <ul class="list-group list-group-flush">
             {% for log in request.logs.all %}
             <li class="list-group-item">
-              <strong>{{ log.quantity }} x {{ log.item.name }}</strong>
+              
+              <strong>{{ log.item.name }}</strong>
+              
               <small class="d-block text-muted">
                 Checked out by {{ log.checked_out_by.username }} on {{ log.checked_out_at|date:"d M Y, P" }}
               </small>
@@ -103,7 +106,7 @@
           {% if request.status == 'PENDING' %}
             <form method="POST" action="{% url 'request-approve' request.pk %}" class="d-grid mb-2">
               {% csrf_token %}
-              <button type="submit" class="btn btn-success" data-mdb-ripple-init>Approve</button>
+              <button type.="submit" class="btn btn-success" data-mdb-ripple-init>Approve</button>
             </form>
             <button type="button" class="btn btn-danger btn-block" data-mdb-toggle="modal" data-mdb-target="#rejectModal" data-mdb-ripple-init>
               Reject
@@ -122,10 +125,49 @@
           
           {% if request.status == 'CHECKED_OUT' or request.status == 'PARTIAL_RETURN' %}
             <p>Items are currently checked out.</p>
-            
             <a href="{% url 'request-checkin' request.pk %}" class="btn btn-success btn-block" data-mdb-ripple-init>
               <i class="fas fa-clipboard-check me-2"></i> Go to Check-In Page
             </a>
+            
+            <div class="dropdown d-grid mt-2"> <button
+                class="btn btn-outline-secondary btn-block dropdown-toggle" type="button"
+                id="exportMenuButton"
+                data-mdb-toggle="dropdown"
+                aria-expanded="false"
+                data-mdb-ripple-init
+              >
+                <i class="fas fa-print me-2"></i> Print / Export
+              </button>
+              <ul class="dropdown-menu w-100" aria-labelledby="exportMenuButton">
+                <li>
+                  <a class="dropdown-item" href="{% url 'request-pdf' request.pk %}">
+                    <i class="fas fa-file-pdf me-2"></i> Save as PDF
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'request-print' request.pk %}" target="_blank"> <i class="fas fa-print me-2"></i> Print Sheet
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'request-email' request.pk %}">
+                    <i class="fas fa-paper-plane me-2"></i> Email PDF
+                  </a>
+                </li>
+                <li>
+                  <form 
+                    action="{% url 'request-hpeprint' request.pk %}" 
+                    method="POST"
+                    class="d-grid"
+                    onsubmit="return confirm('Send this checkout sheet directly to the HP ePrint printer?');"
+                  >
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-item">
+                      <i class="fas fa-network-wired me-2"></i> Send to Printer (HP ePrint)
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </div>
             
           {% endif %}
           

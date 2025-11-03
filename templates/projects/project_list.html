@@ -11,13 +11,30 @@
       <h2 class="mb-0">All Projects</h2>
     </div>
     <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-      <a href="{% url 'project-create' %}" class="btn btn-lg" style="background-color: #e88c1f; color: #fff;">
+      <a href="{% url 'project-create' %}" class="btn btn-lg" style="background-color: #e88c1f; color: #fff;" data-mdb-ripple-init>
         <i class="fas fa-plus me-2"></i> Create New Project
       </a>
     </div>
   </div>
 
-  <div classs="row">
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <form method="GET" action="{% url 'project-list' %}" class="d-flex">
+        <select name="service" class="form-select me-2" data-mdb-select-init>
+          <option value="">Filter by Service...</option>
+          {% for service in services_list %}
+            <option value="{{ service.id }}" {% if selected_service == service.id|stringformat:"s" %}selected{% endif %}>
+              {{ service.name }}
+            </option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary" data-mdb-ripple-init>Filter</button>
+        <a href="{% url 'project-list' %}" class="btn btn-outline-secondary ms-2" data-mdb-ripple-init>Clear</a>
+      </form>
+    </div>
+  </div>
+
+  <div class="row">
     {% for project in projects %}
       <div class="col-lg-6 col-xl-4 mb-4">
         <div class="card h-100 shadow-sm border">
@@ -25,16 +42,18 @@
             
             <div class="d-flex justify-content-between align-items-start">
               <h5 class="card-title mb-1">{{ project.company_name }}</h5>
+              
               <span class="badge rounded-pill 
-                {% if project.status == 'COMPLETED' or project.status == 'DELIVERED' %} badge-success
-                {% elif project.status == 'PAUSED' %} badge-warning
-                {% else %} badge-primary {% endif %}
+                {% if project.status == 'COMPLETED' or project.status == 'DELIVERED' %} badge-success-subtle text-success-emphasis
+                {% elif project.status == 'PAUSED' %} badge-warning-subtle text-warning-emphasis
+                {% elif project.status == 'STARTED' %} badge-info-subtle text-info-emphasis
+                {% else %} badge-primary-subtle text-primary-emphasis {% endif %}
                 ms-2">{{ project.get_status_display }}</span>
             </div>
             
             <h6 class="card-subtitle mb-2 text-muted">
               <i class="fas fa-calendar-alt me-2"></i>
-              {{ project.date_from|date:"d M Y" }} to {{ project.date_to|date:"d MY" }}
+              {{ project.date_from|date:"d M Y" }} to {{ project.date_to|date:"d M Y" }}
             </h6>
 
             <p class="card-text mb-2">
@@ -53,7 +72,7 @@
               Ksh {{ project.charges|floatformat:2 }}
             </h5>
 
-            <a href="{% url 'project-detail' project.pk %}" class="btn btn-outline-primary btn-block">
+            <a href="{% url 'project-detail' project.pk %}" class="btn btn-outline-primary btn-block" data-mdb-ripple-init>
               View Details
             </a>
 
@@ -64,7 +83,13 @@
       <div class="col-12">
         <div class="alert alert-info" role="alert">
           <h4 class="alert-heading">No Projects Found</h4>
-          <p>There are no projects in the system yet. Click the "Create New Project" button to get started!</p>
+          <p>
+            {% if selected_service %}
+              No projects found for this service.
+            {% else %}
+              There are no projects in the system yet. Click the "Create New Project" button to get started!
+            {% endif %}
+          </p>
         </div>
       </div>
     {% endfor %}

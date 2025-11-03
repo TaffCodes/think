@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout Sheet - Request #{{ request.pk }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.4;
+        }
+        h1 {
+            color: #3e4d21; /* Your brand green */
+            margin-bottom: 0;
+            text-align: center;
+        }
+        h2 {
+            font-size: 1.5rem;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        .header-info {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 25px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #999;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .details-table td {
+            border: none;
+            padding: 5px 0;
+        }
+        .details-table {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .item-table th:nth-child(2), .item-table td:nth-child(2) {
+            width: 80px;
+            text-align: center;
+        }
+        .item-table th:nth-child(3), .item-table th:nth-child(4) {
+            width: 120px;
+        }
+        .signature-block {
+            margin-top: 60px;
+            width: 100%;
+        }
+        .signature-box {
+            width: 45%;
+            float: left;
+            margin-right: 5%;
+        }
+        .signature-box-last {
+            margin-right: 0;
+            float: right;
+        }
+        .signature-line {
+            border-bottom: 1px solid #000;
+            height: 40px;
+            margin-top: 10px;
+        }
+        .footer {
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            font-size: 9pt;
+            color: #777;
+        }
+        
+        /* This is only for the browser print view */
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="no-print" onclick="window.print()" style="position: fixed; top: 10px; right: 10px; padding: 10px; font-size: 1rem; background-color: #3e4d21; color: white; border: none; cursor: pointer;">
+        <i class="fas fa-print"></i> Print this Sheet
+    </button>
+
+    <div class="footer">
+        FikiriERP | Thinkomm Communications
+    </div>
+
+    <h1>Equipment Checkout Sheet</h1>
+    <div class="header-info">
+        Request #{{ request.pk }}
+    </div>
+
+    <h2>Details</h2>
+    <table class="details-table">
+        <tr>
+            <td style="width: 150px;"><strong>Project:</strong></td>
+            <td>{{ request.project.company_name }}</td>
+        </tr>
+        <tr>
+            <td><strong>Requested By:</strong></td>
+            <td>{{ request.requested_by.username }}</td>
+        </tr>
+        <tr>
+            <td><strong>Date Requested:</strong></td>
+            <td>{{ request.created_at|date:"d M Y" }}</td>
+        </tr>
+        <tr>
+            <td><strong>Checked Out By:</strong></td>
+            <td>{{ request.logs.first.checked_out_by.username|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td><strong>Checkout Date:</strong></td>
+            <td>{{ request.logs.first.checked_out_at|date:"d M Y, P" }}</td>
+        </tr>
+    </table>
+
+    <h2>Items Checked Out</h2>
+    <table class="item-table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Check-Out</th>
+                <th>Check-In</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in request.items.all %}
+            <tr>
+                <td>
+                    <strong>{{ item.item.name }}</strong>
+                    <br>
+                    <small style="color: #555;">{{ item.item.category.name|default:'' }}</small>
+                </td>
+                <td style="text-align: center; font-size: 1.2rem;">
+                    {{ item.quantity }}
+                </td>
+                <td style="width: 100px; text-align: center; font-size: 1.5rem;">
+                    &#9744; </td>
+                <td style="width: 100px; text-align: center; font-size: 1.5rem;">
+                    &#9744; </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="signature-block">
+        <div class="signature-box">
+            <strong>Staff Signature:</strong>
+            <div class="signature-line"></div>
+        </div>
+        <div class="signature-box signature-box-last">
+            <strong>Admin Signature:</strong>
+            <div class="signature-line"></div>
+        </div>
+    </div>
+
+</body>
+</html>

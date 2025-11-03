@@ -5,6 +5,7 @@ from django import forms
 from django.forms import inlineformset_factory, modelformset_factory
 from .models import EquipmentRequest, RequestedItem, EquipmentItem, CheckoutLog
 from projects.models import Project
+from django.contrib.auth.models import User
 
 # ... (EquipmentRequestForm, BaseRequestItemForm, RequestItemFormSet are unchanged) ...
 class EquipmentRequestForm(forms.ModelForm):
@@ -79,3 +80,14 @@ BaseCheckInFormSet = modelformset_factory(
     form=CheckInLogForm,
     extra=0, # Don't show any extra forms, only existing ones
 )
+
+class EmailCheckoutSheetForm(forms.Form):
+    """
+    A simple form to select a user to email the checkout sheet to.
+    """
+    user_to_email = forms.ModelChoiceField(
+        queryset=User.objects.filter(is_active=True, email__isnull=False).exclude(email=''),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label="Select User to Email",
+        help_text="Select a staff member to send the checkout sheet to."
+    )

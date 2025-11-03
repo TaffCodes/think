@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Email Checkout Sheet | FikiriERP{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      
+      <div class="card shadow-sm border">
+        <div class="card-header">
+          <h3 class="mb-0">Email Checkout Sheet</h3>
+        </div>
+        <div class="card-body p-4 p-md-5">
+          <p class="lead">
+            This will email a PDF of the checkout sheet for <strong>Request #{{ request.pk }}</strong>.
+          </p>
+          <p class="text-muted">
+            The email will be sent to the user you select below AND to the HP ePrint email address (`73f38dyq@hpeprint.com`).
+          </p>
+          
+          <form method="POST">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+              {{ form.user_to_email }}
+              <label class="form-label" for="{{ form.user_to_email.id_for_label }}">{{ form.user_to_email.label }}</label>
+              {% if form.user_to_email.errors %}<div class="text-danger small">{{ form.user_to_email.errors }}</div>{% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-lg btn-block" style="background-color: #3e4d21; color: white;" data-mdb-ripple-init>
+              <i class="fas fa-paper-plane me-2"></i> Send Email
+            </button>
+            <a href="{% url 'request-detail' request.pk %}" class="btn btn-lg btn-outline-secondary" data-mdb-ripple-init>
+              Cancel
+            </a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // This script initializes the MDB Select dropdown
+  document.addEventListener('DOMContentLoaded', function () {
+    const userSelect = document.querySelector('#{{ form.user_to_email.id_for_label }}');
+    if (userSelect) new mdb.Select(userSelect);
+  });
+</script>
+{% endblock %}
