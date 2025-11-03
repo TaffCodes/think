@@ -27,8 +27,16 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS = [
+        '127.0.0.1',
+        'localhost',
+        RENDER_EXTERNAL_HOSTNAME,
+    ]
+else:
+    # Allow all hosts in local development if the var isn't set
+    ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -39,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'whitenoise.runserver_nostatic',  # <-- ADD THIS
 
     # Third-party apps
     'django.contrib.sites',  # Required by allauth
@@ -46,7 +55,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google', # For Google Auth
-
+    'storages',  # For django-storages
 
 
     # Our local apps
@@ -57,6 +66,9 @@ INSTALLED_APPS = [
     'finance.apps.FinanceConfig',
 
 ]
+
+SITE_ID = 1
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -95,19 +107,37 @@ WSGI_APPLICATION = 'fikirierp.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'fikirierp_db',     # The DB name you created
+#         'USER': 'postgres',  # Your PostgreSQL username
+#         'PASSWORD': '123345.',
+#         'HOST': 'localhost',       # Or '127.0.0.1'
+#         'PORT': '5432',
+#     }
+# }
+
+from urllib.parse import urlparse, parse_qsl
+
+load_dotenv()
+
+# Replace the DATABASES section of your settings.py with this
+tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'fikirierp_db',     # The DB name you created
-        'USER': 'postgres',  # Your PostgreSQL username
-        'PASSWORD': '123345.',
-        'HOST': 'localhost',       # Or '127.0.0.1'
-        'PORT': '5432',
+        'NAME': tmpPostgres.path.replace('/', ''),
+        'USER': tmpPostgres.username,
+        'PASSWORD': tmpPostgres.password,
+        'HOST': tmpPostgres.hostname,
+        'PORT': 5432,
+        'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
     }
 }
 
 
-SITE_ID = 1
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -143,14 +173,44 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+# STATIC_URL = 'static/'
+# STATICFILES_DIRS = [
+#     BASE_DIR / 'static'  # Tell Django to look in our global static folder
+# ]
+
+# # Media files (User uploads like receipts)
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = BASE_DIR / 'media'
+
+
+# --- 5. STATIC FILES (Whitenoise) ---
+# These are your CSS, JS, logo. Whitenoise serves them.
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # 'collectstatic' will put files here
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATICFILES_DIRS = [
-    BASE_DIR / 'static'  # Tell Django to look in our global static folder
+    BASE_DIR / 'static'  # Where Django looks for your static files
 ]
 
-# Media files (User uploads like receipts)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
+# --- 6. MEDIA FILES (Cloudflare R2) ---
+# These are user-uploaded receipts. django-storages serves them.
+
+# Use our custom storage class from fikirierp/storages.py
+DEFAULT_FILE_STORAGE = 'fikirierp.storages.MediaStorage'
+
+# These are the environment variables Render will use
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL')
+
+# R2/S3 settings
+AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+AWS_DEFAULT_ACL = None
+AWS_S3_FILE_OVERWRITE = False
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_QUERYSTRING_AUTH = False  # To get clean URLs
 
 
 # Default primary key field type
