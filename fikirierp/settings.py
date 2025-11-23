@@ -32,6 +32,7 @@ if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS = [
         '127.0.0.1',
         'localhost',
+        'https://preview--fikiri-flow.lovable.app/',
         RENDER_EXTERNAL_HOSTNAME,
     ]
 else:
