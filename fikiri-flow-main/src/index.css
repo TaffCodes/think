@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* FikiriERP Brand Colors - Military Green & Orange */
+    --background: 0 0% 98%;
+    --foreground: 82 28% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 82 28% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 82 28% 20%;
+
+    /* Primary - Dark Olive/Military Green (#3e4d21) */
+    --primary: 82 28% 20%;
+    --primary-foreground: 0 0% 98%;
+    --primary-hover: 82 30% 16%;
+
+    /* Accent - Bright Orange (#e88c1f) */
+    --accent: 35 82% 51%;
+    --accent-foreground: 82 28% 20%;
+    --accent-hover: 35 85% 46%;
+
+    --secondary: 82 15% 92%;
+    --secondary-foreground: 82 28% 20%;
+
+    --muted: 82 10% 95%;
+    --muted-foreground: 82 10% 45%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 82 15% 88%;
+    --input: 82 15% 88%;
+    --ring: 82 28% 20%;
+
+    --radius: 0.5rem;
+
+    /* Sidebar - Dark military green theme */
+    --sidebar-background: 82 28% 20%;
+    --sidebar-foreground: 82 15% 92%;
+    --sidebar-primary: 35 82% 51%;
+    --sidebar-primary-foreground: 82 28% 20%;
+    --sidebar-accent: 82 30% 16%;
+    --sidebar-accent-foreground: 82 15% 92%;
+    --sidebar-border: 82 30% 25%;
+    --sidebar-ring: 35 82% 51%;
+
+    /* Custom gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(82 28% 20%), hsl(82 30% 16%));
+    --gradient-accent: linear-gradient(135deg, hsl(35 82% 51%), hsl(35 85% 60%));
+    
+    /* Shadows */
+    --shadow-soft: 0 2px 8px hsl(82 28% 20% / 0.1);
+    --shadow-medium: 0 4px 12px hsl(82 28% 20% / 0.15);
+    --shadow-strong: 0 8px 24px hsl(82 28% 20% / 0.2);
+    
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 82 28% 12%;
+    --foreground: 82 15% 92%;
+
+    --card: 82 28% 16%;
+    --card-foreground: 82 15% 92%;
+
+    --popover: 82 28% 16%;
+    --popover-foreground: 82 15% 92%;
+
+    --primary: 82 15% 92%;
+    --primary-foreground: 82 28% 20%;
+    --primary-hover: 82 15% 85%;
+
+    --accent: 35 82% 51%;
+    --accent-foreground: 82 28% 20%;
+    --accent-hover: 35 85% 46%;
+
+    --secondary: 82 28% 20%;
+    --secondary-foreground: 82 15% 92%;
+
+    --muted: 82 28% 18%;
+    --muted-foreground: 82 10% 60%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 82 15% 92%;
+
+    --border: 82 28% 25%;
+    --input: 82 28% 25%;
+    --ring: 35 82% 51%;
+
+    --sidebar-background: 82 28% 16%;
+    --sidebar-foreground: 82 15% 92%;
+    --sidebar-primary: 35 82% 51%;
+    --sidebar-primary-foreground: 82 28% 20%;
+    --sidebar-accent: 82 28% 20%;
+    --sidebar-accent-foreground: 82 15% 92%;
+    --sidebar-border: 82 28% 25%;
+    --sidebar-ring: 35 82% 51%;
+
+    --shadow-soft: 0 2px 8px hsl(0 0% 0% / 0.3);
+    --shadow-medium: 0 4px 12px hsl(0 0% 0% / 0.4);
+    --shadow-strong: 0 8px 24px hsl(0 0% 0% / 0.5);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+  
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  
+  .shadow-medium {
+    box-shadow: var(--shadow-medium);
+  }
+  
+  .shadow-strong {
+    box-shadow: var(--shadow-strong);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+}

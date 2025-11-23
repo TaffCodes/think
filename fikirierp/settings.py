@@ -56,6 +56,11 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google', # For Google Auth
     'storages',  # For django-storages
+    'rest_framework',  # For future API development
+    'rest_framework.authtoken',  # For token authentication
+    'dj_rest_auth',  # For RESTful auth
+    'corsheaders',  # For handling CORS
+    'django_filters',  # For filtering in DRF
 
 
     # Our local apps
@@ -71,6 +76,7 @@ SITE_ID = 1
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -80,6 +86,35 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000", # Your local React dev server
+    "http://localhost:5173", # Or if you use Vite
+    "https://your-react-app-domain.com", # Your future production URL
+]
+# If you want to be less strict for development:
+# CORS_ORIGIN_ALLOW_ALL = True
+
+# --- ADD THIS NEW SECTION (for DRF) ---
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # This allows API access using tokens
+        'rest_framework.authentication.TokenAuthentication',
+        # This keeps your original website login working
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+}
+
+# --- ADD THIS NEW SECTION (for dj-rest-auth) ---
+# This tells allauth to use email (not required, but good)
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_EMAIL_REQUIRED = True
+
+# This tells dj-rest-auth to use Token auth
+REST_AUTH = {
+    'USE_TOKEN_AUTHENTICATOR': True,
+}
 
 ROOT_URLCONF = 'fikirierp.urls'
 

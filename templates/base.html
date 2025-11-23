@@ -67,7 +67,7 @@
         aria-controls="main-nav-links"
         aria-expanded="false"
         aria-label="Toggle navigation"
-        data-mdb-ripple-init  /* This was also missing, but the script below is the main fix */
+        data-mdb-ripple-init 
       >
         <i class="fas fa-bars"></i>
       </button>
@@ -75,10 +75,12 @@
       {% if user.is_authenticated %}
       <div class="collapse navbar-collapse" id="main-nav-links">
         <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          
           <li class="nav-item">
             <a class="nav-link {% if request.resolver_match.view_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">Dashboard</a>
           </li>
-          <li class.="nav-item">
+          
+          <li class="nav-item"> 
             <a class="nav-link {% if 'project' in request.resolver_match.app_names %}active{% endif %}" href="{% url 'project-list' %}">Projects</a>
           </li>
           
@@ -114,7 +116,7 @@
             Logout
           </a>
         {% else %}
-          <a href="{% url 'account_login' %}" classs="btn btn-outline-light me-2" data-mdb-ripple-init>
+          <a href="{% url 'account_login' %}" class="btn btn-outline-light me-2" data-mdb-ripple-init>
             Login
           </a>
           <a href="{% url 'account_signup' %}" class="btn btn-light" data-mdb-ripple-init>
@@ -159,7 +161,7 @@
   {% block scripts %}
   {% endblock %}
 
-  <script type_="text/javascript">
+  <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', () => {
       // Initialize all Form Outlines
       document.querySelectorAll('.form-outline').forEach((formOutline) => {
@@ -189,7 +191,6 @@
         new mdb.Alert(alert);
       });
 
-      // ** THIS IS THE FIX **
       // Initialize all Collapse components (for the mobile navbar)
       document.querySelectorAll('.collapse').forEach((collapse) => {
         new mdb.Collapse(collapse, {
