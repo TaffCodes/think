@@ -3,12 +3,13 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.db import transaction
-from django.shortcuts import get_object_or_404
 from decimal import Decimal
 from .models import Account, Transaction, Expense
 from .serializers import AccountSerializer, TransactionSerializer, ExpenseSerializer
 from projects.models import Project
 
+# Accounts are generally read-only for the frontend, but if you want 
+# to create them via API later, you can change this to ModelViewSet too.
 class AccountViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
@@ -18,12 +19,21 @@ class ExpenseViewSet(viewsets.ModelViewSet):
     queryset = Expense.objects.all().order_by('-expense_date')
     serializer_class = ExpenseSerializer
     permission_classes = [IsAuthenticated]
-    filterset_fields = ['project', 'staff_member']
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        project = self.request.query_params.get('project')
+        staff = self.request.query_params.get('staff')
+        if project:
+            queryset = queryset.filter(project_id=project)
+        if staff:
+            queryset = queryset.filter(staff_member_id=staff)
+        return queryset
 
     def perform_create(self, serializer):
         with transaction.atomic():
             expense = serializer.save(added_by=self.request.user)
-            # Create Transaction
+            # Automatically create the transaction ledger entry
             Transaction.objects.create(
                 amount=expense.amount,
                 description=f"Expense: {expense.description}",
@@ -32,31 +42,88 @@ class ExpenseViewSet(viewsets.ModelViewSet):
                 project=expense.project
             )
 
-class TransactionViewSet(viewsets.ReadOnlyModelViewSet):
+# --- THIS IS THE FIXED CLASS ---
+# Changed from ReadOnlyModelViewSet to ModelViewSet
+class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all().order_by('-timestamp')
     serializer_class = TransactionSerializer
     permission_classes = [IsAdminUser]
 
-    @action(detail=False, methods=['post'])
-    def manual(self, request):
-        """
-        Create a manual transaction (transfer/deposit).
-        """
+    def create(self, request, *args, **kwargs):
+        # Manual transaction creation
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], url_path='receive-payment')
     def receive_payment(self, request):
-        """
-        Payload: { "project_id": 1 }
-        """
         project_id = request.data.get('project_id')
-        project = get_object_or_404(Project, pk=project_id)
-        
-        # ... (Re-implement the split logic from views.py here) ...
-        # For brevity, assuming logic is copied from finance/views.py ProjectPaymentView
-        
-        return Response({'status': 'Payment Received and Split'})
+        try:
+            project = Project.objects.get(pk=project_id)
+        except Project.DoesNotExist:
+            return Response({'error': 'Project not found'}, status=404)
+
+        if project.is_paid:
+            return Response({'error': 'Project already paid'}, status=400)
+
+        try:
+            with transaction.atomic():
+                # Get required accounts (Case insensitive check)
+                main_acc = Account.objects.get(name__iexact="Main Account")
+                logistics_acc = Account.objects.get(name__iexact="Logistics")
+                admin_acc = Account.objects.get(name__iexact="Admin")
+                
+                project.is_paid = True
+                project.save()
+                
+                # 1. Income (Credit Main Account)
+                Transaction.objects.create(
+                    amount=project.charges, 
+                    description=f"Payment: {project.company_name}",
+                    to_account=main_acc, 
+                    project=project
+                )
+                
+                # 2. Splits (Debit Main Account, Credit Others)
+                
+                # Logistics (10%)
+                Transaction.objects.create(
+                    amount=project.charges * Decimal('0.10'), 
+                    description="Logistics Split",
+                    from_account=main_acc, 
+                    to_account=logistics_acc, 
+                    project=project
+                )
+                
+                # Admin (15%)
+                Transaction.objects.create(
+                    amount=project.charges * Decimal('0.15'), 
+                    description="Admin Split",
+                    from_account=main_acc, 
+                    to_account=admin_acc, 
+                    project=project
+                )
+                
+                # 3. Department Split (35%)
+                involved_names = project.services.values_list('name', flat=True)
+                dept_accounts = Account.objects.filter(name__in=involved_names)
+                
+                if dept_accounts.exists():
+                    # Split the 35% cut equally among involved departments
+                    split_amt = (project.charges * Decimal('0.35')) / dept_accounts.count()
+                    for acc in dept_accounts:
+                        Transaction.objects.create(
+                            amount=split_amt, 
+                            description=f"Dept Split ({acc.name})",
+                            from_account=main_acc, 
+                            to_account=acc, 
+                            project=project
+                        )
+                        
+            return Response({'status': 'Payment received and split'})
+            
+        except Account.DoesNotExist:
+            return Response({'error': 'Required accounts (Main Account, Logistics, Admin) missing'}, status=500)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)

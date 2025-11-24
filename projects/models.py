@@ -13,6 +13,7 @@ class Service(models.Model):
 class Project(models.Model):
 
     STATUS_CHOICES = [
+        ('UPCOMING', 'Upcoming'),
         ('STARTED', 'Started'),
         ('IN_PROGRESS', 'In Progress'),
         ('PAUSED', 'Paused'),

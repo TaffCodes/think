@@ -82,7 +82,7 @@ class Expense(models.Model):
     description = models.TextField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     expense_date = models.DateField()
-    
+    category = models.CharField(max_length=100, default="Other", db_index=True)
     account = models.ForeignKey(
         Account, 
         on_delete=models.PROTECT,

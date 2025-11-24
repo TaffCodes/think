@@ -18,30 +18,30 @@ class ProjectViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['status']
-    search_fields = ['company_name', 'contact_person']
+    search_fields = ['company_name']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        service_id = self.request.query_params.get('service')
+        if service_id:
+            queryset = queryset.filter(services__id=service_id)
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
     @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
     def allocate_team(self, request, pk=None):
-        """
-        Assign a user to the project.
-        Payload: { "user_id": 1 }
-        """
         project = self.get_object()
         user_id = request.data.get('user_id')
         
         if not user_id:
             return Response({'error': 'user_id is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Check if already allocated
         if ProjectAllocation.objects.filter(project=project, user_id=user_id).exists():
              return Response({'error': 'User already allocated'}, status=status.HTTP_400_BAD_REQUEST)
 
         ProjectAllocation.objects.create(
-            project=project,
-            user_id=user_id,
-            allocated_by=request.user
+            project=project, user_id=user_id, allocated_by=request.user
         )
-        return Response({'status': 'User allocated successfully'})
+        return Response(ProjectSerializer(project).data)
