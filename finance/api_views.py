@@ -69,7 +69,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
         try:
             with transaction.atomic():
-                # Get required accounts (Case insensitive check)
+                # 1. Get Main Accounts
                 main_acc = Account.objects.get(name__iexact="Main Account")
                 logistics_acc = Account.objects.get(name__iexact="Logistics")
                 admin_acc = Account.objects.get(name__iexact="Admin")
@@ -77,7 +77,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
                 project.is_paid = True
                 project.save()
                 
-                # 1. Income (Credit Main Account)
+                # 2. Income (Credit Main Account)
                 Transaction.objects.create(
                     amount=project.charges, 
                     description=f"Payment: {project.company_name}",
@@ -85,9 +85,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
                     project=project
                 )
                 
-                # 2. Splits (Debit Main Account, Credit Others)
-                
-                # Logistics (10%)
+                # 3. Standard Splits
                 Transaction.objects.create(
                     amount=project.charges * Decimal('0.10'), 
                     description="Logistics Split",
@@ -96,7 +94,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
                     project=project
                 )
                 
-                # Admin (15%)
                 Transaction.objects.create(
                     amount=project.charges * Decimal('0.15'), 
                     description="Admin Split",
@@ -105,13 +102,20 @@ class TransactionViewSet(viewsets.ModelViewSet):
                     project=project
                 )
                 
-                # 3. Department Split (35%)
-                involved_names = project.services.values_list('name', flat=True)
-                dept_accounts = Account.objects.filter(name__in=involved_names)
+                # 4. Department Split (The Logic Fix)
+                dept_cut_total = project.charges * Decimal('0.35')
+                
+                # Find unique department NAMES from the project's services
+                # Note: This relies on you setting the 'department' in the Service model
+                involved_dept_names = project.services.values_list('department__name', flat=True).distinct()
+                
+                # Find Accounts that match these Department names
+                dept_accounts = Account.objects.filter(name__in=involved_dept_names)
                 
                 if dept_accounts.exists():
                     # Split the 35% cut equally among involved departments
-                    split_amt = (project.charges * Decimal('0.35')) / dept_accounts.count()
+                    split_amt = dept_cut_total / dept_accounts.count()
+                    
                     for acc in dept_accounts:
                         Transaction.objects.create(
                             amount=split_amt, 
@@ -120,10 +124,14 @@ class TransactionViewSet(viewsets.ModelViewSet):
                             to_account=acc, 
                             project=project
                         )
-                        
+                else:
+                    # Fallback if services have no departments assigned yet
+                    # Money stays in Main or you could log a warning
+                    pass
+
             return Response({'status': 'Payment received and split'})
             
-        except Account.DoesNotExist:
-            return Response({'error': 'Required accounts (Main Account, Logistics, Admin) missing'}, status=500)
+        except Account.DoesNotExist as e:
+            return Response({'error': f'Required account missing: {str(e)}'}, status=500)
         except Exception as e:
             return Response({'error': str(e)}, status=500)
