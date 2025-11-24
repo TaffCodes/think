@@ -27,7 +27,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         many=True, 
         write_only=True
     )
-    created_by_name = serializers.CharField(source='created_by.username', read_only=True)
+    created_by_name = serializers.CharField(source='created_by.first_name', read_only=True)
     
     # --- NEW CALCULATED FIELDS ---
     total_expenses = serializers.SerializerMethodField()

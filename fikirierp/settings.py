@@ -10,361 +10,41 @@
 # https://docs.djangoproject.com/en/5.2/ref/settings/
 # """
 
-# from pathlib import Path
-# import os
-# from dotenv import load_dotenv
-
-# load_dotenv()
-
-# # Build paths inside the project like this: BASE_DIR / 'subdir'.
-# BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# # Quick-start development settings - unsuitable for production
-# # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-
-# # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-
-# REST_SESSION_LOGIN = False
-
-
-# RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-# if RENDER_EXTERNAL_HOSTNAME:
-#     ALLOWED_HOSTS = [
-#         '127.0.0.1',
-#         'localhost',
-#         'https://preview--fikiri-flow.lovable.app/',
-#         RENDER_EXTERNAL_HOSTNAME,
-#     ]
-# else:
-#     # Allow all hosts in local development if the var isn't set
-#     ALLOWED_HOSTS = ['*']
-
-# # Application definition
-
-# INSTALLED_APPS = [
-#     'django.contrib.admin',
-#     'django.contrib.auth',
-#     'django.contrib.contenttypes',
-#     'django.contrib.sessions',
-#     'django.contrib.messages',
-#     'django.contrib.staticfiles',
-#     'whitenoise.runserver_nostatic',  # <-- ADD THIS
-
-#     # Third-party apps
-#     'django.contrib.sites',  # Required by allauth
-#     'allauth',
-#     'allauth.account',
-#     'allauth.socialaccount',
-#     'allauth.socialaccount.providers.google', # For Google Auth
-#     'storages',  # For django-storages
-#     'rest_framework',  # For future API development
-#     'rest_framework.authtoken',  # For token authentication
-#     'dj_rest_auth',  # For RESTful auth
-#     'corsheaders',  # For handling CORS
-#     'django_filters',  # For filtering in DRF
-
-
-#     # Our local apps
-#     'core.apps.CoreConfig',
-#     'users.apps.UsersConfig',
-#     'projects.apps.ProjectsConfig',
-#     'equipment.apps.EquipmentConfig',
-#     'finance.apps.FinanceConfig',
-
-# ]
-
-# SITE_ID = 1
-
-
-# MIDDLEWARE = [
-#     'corsheaders.middleware.CorsMiddleware',
-#     'django.middleware.security.SecurityMiddleware',
-#     'whitenoise.middleware.WhiteNoiseMiddleware',
-#     'django.contrib.sessions.middleware.SessionMiddleware',
-#     'django.middleware.common.CommonMiddleware',
-#     'django.middleware.csrf.CsrfViewMiddleware',
-#     'django.contrib.auth.middleware.AuthenticationMiddleware',
-#     'django.contrib.messages.middleware.MessageMiddleware',
-#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-#     'allauth.account.middleware.AccountMiddleware',
-# ]
-
-# # CORS_ALLOWED_ORIGINS = [
-# #     "http://localhost:3000", # Your local React dev server
-# #     "http://localhost:5173", # Or if you use Vite
-# #     "http://localhost:8080", # Another common port"
-# #     "http://127.0.0.1:8080",
-# #     "http://localhost:8000",
-# #     "https://your-react-app-domain.com", # Your future production URL
-# #     "https://think-3cs9.onrender.com", # Your production backend URL
-# # ]
-# # If you want to be less strict for development:
-# CORS_ORIGIN_ALLOW_ALL = True
-
-# # # IMPORTANT: You must include the 'http://' or 'https://' scheme.
-# # CSRF_TRUSTED_ORIGINS = [
-# #     "http://localhost:8080",      # Your local frontend (based on your error message)
-# #     "http://127.0.0.1:8080",
-# #     "http://localhost:8000",      # Common React port
-# #     "http://localhost:5173",      # Common Vite port (add just in case)
-# #     "https://think-3cs9.onrender.com", # Your production backend URL
-# # ]
-# CSRF_ALLOW_ALL_ORIGINS = True
-
-# # --- ADD THIS NEW SECTION (for DRF) ---
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         # This allows API access using tokens
-#         'rest_framework.authentication.TokenAuthentication',
-#         # This keeps your original website login working
-#         # 'rest_framework.authentication.SessionAuthentication',
-#     ],
-#     'DEFAULT_PERMISSION_CLASSES': [
-#         'rest_framework.permissions.IsAuthenticated',
-#     ],
-# }
-
-# # --- ADD THIS NEW SECTION (for dj-rest-auth) ---
-# # This tells allauth to use email (not required, but good)
-# ACCOUNT_EMAIL_VERIFICATION = 'none'
-# ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
-# ACCOUNT_EMAIL_REQUIRED = True
-
-# # This tells dj-rest-auth to use Token auth
-# REST_AUTH = {
-#     'USE_TOKEN_AUTHENTICATOR': True,
-# }
-
-# ROOT_URLCONF = 'fikirierp.urls'
-
-# TEMPLATES = [
-#     {
-#         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-#         'DIRS': [
-#             BASE_DIR / 'templates'  # Tell Django to look in our global templates folder
-#         ],
-#         'APP_DIRS': True,
-#         'OPTIONS': {
-#             'context_processors': [
-#                 'django.template.context_processors.debug',
-#                 'django.template.context_processors.request',
-#                 'django.contrib.auth.context_processors.auth',
-#                 'django.contrib.messages.context_processors.messages',
-#             ],
-#         },
-#     },
-# ]
-
-# WSGI_APPLICATION = 'fikirierp.wsgi.application'
-
-
-# # Database
-# # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'fikirierp_db',     # The DB name you created
-#         'USER': 'postgres',  # Your PostgreSQL username
-#         'PASSWORD': '123345.',
-#         'HOST': 'localhost',       # Or '127.0.0.1'
-#         'PORT': '5432',
-#     }
-# }
-
-# from urllib.parse import urlparse, parse_qsl
-
-# load_dotenv()
-
-# # Replace the DATABASES section of your settings.py with this
-# # tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
-
-# # DATABASES = {
-# #     'default': {
-# #         'ENGINE': 'django.db.backends.postgresql',
-# #         'NAME': tmpPostgres.path.replace('/', ''),
-# #         'USER': tmpPostgres.username,
-# #         'PASSWORD': tmpPostgres.password,
-# #         'HOST': tmpPostgres.hostname,
-# #         'PORT': 5432,
-# #         'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
-# #     }
-# # }
-
-
-
-# # Password validation
-# # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
-# AUTH_PASSWORD_VALIDATORS = [
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-#     },
-# ]
-
-
-# # Internationalization
-# # https://docs.djangoproject.com/en/5.2/topics/i18n/
-
-# LANGUAGE_CODE = 'en-us'
-
-# TIME_ZONE = 'Africa/Nairobi'
-
-# USE_I18N = True
-
-# USE_TZ = True
-
-
-# # Static files (CSS, JavaScript, Images)
-# # https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-# # STATIC_URL = 'static/'
-# # STATICFILES_DIRS = [
-# #     BASE_DIR / 'static'  # Tell Django to look in our global static folder
-# # ]
-
-# # # Media files (User uploads like receipts)
-# # MEDIA_URL = '/media/'
-# # MEDIA_ROOT = BASE_DIR / 'media'
-
-
-# # --- 5. STATIC FILES (Whitenoise) ---
-# # These are your CSS, JS, logo. Whitenoise serves them.
-# STATIC_URL = 'static/'
-# STATIC_ROOT = BASE_DIR / 'staticfiles'  # 'collectstatic' will put files here
-# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-# STATICFILES_DIRS = [
-#     BASE_DIR / 'static'  # Where Django looks for your static files
-# ]
-
-
-# # --- 6. MEDIA FILES (Cloudflare R2) ---
-# # These are user-uploaded receipts. django-storages serves them.
-
-# # Use our custom storage class from fikirierp/storages.py
-# DEFAULT_FILE_STORAGE = 'fikirierp.storages.MediaStorage'
-
-# # These are the environment variables Render will use
-# AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-# AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-# AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-# AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL')
-
-# # R2/S3 settings
-# AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-# AWS_DEFAULT_ACL = None
-# AWS_S3_FILE_OVERWRITE = False
-# AWS_S3_SIGNATURE_VERSION = 's3v4'
-# AWS_QUERYSTRING_AUTH = False  # To get clean URLs
-
-
-# # Default primary key field type
-# # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
-# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-# # --- django-allauth Configuration ---
-
-# AUTHENTICATION_BACKENDS = [
-#     # Needed to login by username in Django admin, regardless of `allauth`
-#     'django.contrib.auth.backends.ModelBackend',
-
-#     # `allauth` specific authentication methods, such as login by e-mail
-#     'allauth.account.auth_backends.AuthenticationBackend',
-# ]
-
-# # Redirect URLs
-# LOGIN_REDIRECT_URL = 'dashboard'  # Route name of our dashboard
-# LOGOUT_REDIRECT_URL = 'account_login' # Route name for allauth's login page
-
-# # Email settings
-# ACCOUNT_EMAIL_VERIFICATION = 'optional' # Admin will verify, so we don't need to force email
-# ACCOUNT_AUTHENTICATION_METHOD = 'username_email' # Allow login with username or email
-# ACCOUNT_EMAIL_REQUIRED = True
-# ACCOUNT_UNIQUE_EMAIL = True
-# ACCOUNT_USERNAME_REQUIRED = True
-
-
-# # Google Provider settings
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'SCOPE': [
-#             'profile',
-#             'email',
-#         ],
-#         'AUTH_PARAMS': {
-#             'access_type': 'online',
-#         },
-#     }
-# }
-
-# # --- EMAIL CONFIGURATION ---
-# # Using Gmail SMTP for development.
-# # IMPORTANT: You must "Allow less secure apps" in your Google account
-# # or use an "App Password" if you have 2-Factor Auth enabled.
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = os.getenv('EMAIL_HOST')
-# EMAIL_PORT = os.getenv('EMAIL_PORT')
-# EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
-# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-# DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
-# PRINTER_EMAIL = os.getenv('PRINTER_EMAIL')
-
-
-
-"""
-Django settings for fikirierp project.
-"""
-
 from pathlib import Path
 import os
-from urllib.parse import urlparse, parse_qsl
-import dj_database_url
 from dotenv import load_dotenv
 
-# 1. LOAD ENVIRONMENT VARIABLES FIRST
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# --- SECURITY SETTINGS ---
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# Keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-fallback-key-for-dev')
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
-# Automatically set DEBUG to False if running on Render (production)
-RENDER = os.environ.get('RENDER')
-DEBUG = not RENDER
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
-ALLOWED_HOSTS = []
+REST_SESSION_LOGIN = False
+
+
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-
 if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-    ALLOWED_HOSTS.append('think-3cs9.onrender.com')
-if DEBUG:
-    ALLOWED_HOSTS.extend(['127.0.0.1', 'localhost', 'preview--fikiri-flow.lovable.app'])
+    ALLOWED_HOSTS = [
+        '127.0.0.1',
+        'localhost',
+        'https://preview--fikiri-flow.lovable.app/',
+        RENDER_EXTERNAL_HOSTNAME,
+    ]
+else:
+    # Allow all hosts in local development if the var isn't set
+    ALLOWED_HOSTS = ['*']
 
-
-# --- APPLICATION DEFINITION ---
+# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -372,21 +52,22 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'whitenoise.runserver_nostatic',  # Must be before staticfiles
     'django.contrib.staticfiles',
+    'whitenoise.runserver_nostatic',  # <-- ADD THIS
 
     # Third-party apps
-    'django.contrib.sites',
+    'django.contrib.sites',  # Required by allauth
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'storages',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'dj_rest_auth',
-    'corsheaders',
-    'django_filters',
+    'allauth.socialaccount.providers.google', # For Google Auth
+    'storages',  # For django-storages
+    'rest_framework',  # For future API development
+    'rest_framework.authtoken',  # For token authentication
+    'dj_rest_auth',  # For RESTful auth
+    'corsheaders',  # For handling CORS
+    'django_filters',  # For filtering in DRF
+
 
     # Our local apps
     'core.apps.CoreConfig',
@@ -394,14 +75,16 @@ INSTALLED_APPS = [
     'projects.apps.ProjectsConfig',
     'equipment.apps.EquipmentConfig',
     'finance.apps.FinanceConfig',
+
 ]
 
 SITE_ID = 1
 
+
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', # Must be at the top
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Right after security
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -411,12 +94,60 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
 ]
 
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000", # Your local React dev server
+#     "http://localhost:5173", # Or if you use Vite
+#     "http://localhost:8080", # Another common port"
+#     "http://127.0.0.1:8080",
+#     "http://localhost:8000",
+#     "https://your-react-app-domain.com", # Your future production URL
+#     "https://think-3cs9.onrender.com", # Your production backend URL
+# ]
+# If you want to be less strict for development:
+CORS_ORIGIN_ALLOW_ALL = True
+
+# # IMPORTANT: You must include the 'http://' or 'https://' scheme.
+# CSRF_TRUSTED_ORIGINS = [
+#     "http://localhost:8080",      # Your local frontend (based on your error message)
+#     "http://127.0.0.1:8080",
+#     "http://localhost:8000",      # Common React port
+#     "http://localhost:5173",      # Common Vite port (add just in case)
+#     "https://think-3cs9.onrender.com", # Your production backend URL
+# ]
+CSRF_ALLOW_ALL_ORIGINS = True
+
+# --- ADD THIS NEW SECTION (for DRF) ---
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # This allows API access using tokens
+        'rest_framework.authentication.TokenAuthentication',
+        # This keeps your original website login working
+        # 'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+# --- ADD THIS NEW SECTION (for dj-rest-auth) ---
+# This tells allauth to use email (not required, but good)
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_EMAIL_REQUIRED = True
+
+# This tells dj-rest-auth to use Token auth
+REST_AUTH = {
+    'USE_TOKEN_AUTHENTICATOR': True,
+}
+
 ROOT_URLCONF = 'fikirierp.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR / 'templates' ],
+        'DIRS': [
+            BASE_DIR / 'templates'  # Tell Django to look in our global templates folder
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -432,9 +163,278 @@ TEMPLATES = [
 WSGI_APPLICATION = 'fikirierp.wsgi.application'
 
 
-# --- DATABASE ---
+# Database
+# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# This logic handles both Local (PostgreSQL) and Render (Neon) automatically.
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'fikirierp_db',     # The DB name you created
+        'USER': 'postgres',  # Your PostgreSQL username
+        'PASSWORD': '123345.',
+        'HOST': 'localhost',       # Or '127.0.0.1'
+        'PORT': '5432',
+    }
+}
+
+from urllib.parse import urlparse, parse_qsl
+
+load_dotenv()
+
+# Replace the DATABASES section of your settings.py with this
+# tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': tmpPostgres.path.replace('/', ''),
+#         'USER': tmpPostgres.username,
+#         'PASSWORD': tmpPostgres.password,
+#         'HOST': tmpPostgres.hostname,
+#         'PORT': 5432,
+#         'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
+#     }
+# }
+
+
+
+# Password validation
+# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/5.2/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'Africa/Nairobi'
+
+USE_I18N = True
+
+USE_TZ = True
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
+
+# STATIC_URL = 'static/'
+# STATICFILES_DIRS = [
+#     BASE_DIR / 'static'  # Tell Django to look in our global static folder
+# ]
+
+# # Media files (User uploads like receipts)
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = BASE_DIR / 'media'
+
+
+# --- 5. STATIC FILES (Whitenoise) ---
+# These are your CSS, JS, logo. Whitenoise serves them.
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # 'collectstatic' will put files here
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static'  # Where Django looks for your static files
+]
+
+
+# --- 6. MEDIA FILES (Cloudflare R2) ---
+# These are user-uploaded receipts. django-storages serves them.
+
+# Use our custom storage class from fikirierp/storages.py
+DEFAULT_FILE_STORAGE = 'fikirierp.storages.MediaStorage'
+
+# These are the environment variables Render will use
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL')
+
+# R2/S3 settings
+AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+AWS_DEFAULT_ACL = None
+AWS_S3_FILE_OVERWRITE = False
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_QUERYSTRING_AUTH = False  # To get clean URLs
+
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# --- django-allauth Configuration ---
+
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# Redirect URLs
+LOGIN_REDIRECT_URL = 'dashboard'  # Route name of our dashboard
+LOGOUT_REDIRECT_URL = 'account_login' # Route name for allauth's login page
+
+# Email settings
+ACCOUNT_EMAIL_VERIFICATION = 'optional' # Admin will verify, so we don't need to force email
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email' # Allow login with username or email
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = True
+
+
+# Google Provider settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+    }
+}
+
+# --- EMAIL CONFIGURATION ---
+# Using Gmail SMTP for development.
+# IMPORTANT: You must "Allow less secure apps" in your Google account
+# or use an "App Password" if you have 2-Factor Auth enabled.
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+PRINTER_EMAIL = os.getenv('PRINTER_EMAIL')
+
+
+
+# """
+# Django settings for fikirierp project.
+# """
+
+# from pathlib import Path
+# import os
+# from urllib.parse import urlparse, parse_qsl
+# import dj_database_url
+# from dotenv import load_dotenv
+
+# # 1. LOAD ENVIRONMENT VARIABLES FIRST
+# load_dotenv()
+
+# # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# # --- SECURITY SETTINGS ---
+
+# # Keep the secret key used in production secret!
+# SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-fallback-key-for-dev')
+
+# # Automatically set DEBUG to False if running on Render (production)
+# RENDER = os.environ.get('RENDER')
+# DEBUG = not RENDER
+
+# ALLOWED_HOSTS = []
+# RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+
+# if RENDER_EXTERNAL_HOSTNAME:
+#     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+#     ALLOWED_HOSTS.append('think-3cs9.onrender.com')
+# if DEBUG:
+#     ALLOWED_HOSTS.extend(['127.0.0.1', 'localhost', 'preview--fikiri-flow.lovable.app'])
+
+
+# # --- APPLICATION DEFINITION ---
+
+# INSTALLED_APPS = [
+#     'django.contrib.admin',
+#     'django.contrib.auth',
+#     'django.contrib.contenttypes',
+#     'django.contrib.sessions',
+#     'django.contrib.messages',
+#     'whitenoise.runserver_nostatic',  # Must be before staticfiles
+#     'django.contrib.staticfiles',
+
+#     # Third-party apps
+#     'django.contrib.sites',
+#     'allauth',
+#     'allauth.account',
+#     'allauth.socialaccount',
+#     'allauth.socialaccount.providers.google',
+#     'storages',
+#     'rest_framework',
+#     'rest_framework.authtoken',
+#     'dj_rest_auth',
+#     'corsheaders',
+#     'django_filters',
+
+#     # Our local apps
+#     'core.apps.CoreConfig',
+#     'users.apps.UsersConfig',
+#     'projects.apps.ProjectsConfig',
+#     'equipment.apps.EquipmentConfig',
+#     'finance.apps.FinanceConfig',
+# ]
+
+# SITE_ID = 1
+
+# MIDDLEWARE = [
+#     'corsheaders.middleware.CorsMiddleware', # Must be at the top
+#     'django.middleware.security.SecurityMiddleware',
+#     'whitenoise.middleware.WhiteNoiseMiddleware', # Right after security
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#     'allauth.account.middleware.AccountMiddleware',
+# ]
+
+# ROOT_URLCONF = 'fikirierp.urls'
+
+# TEMPLATES = [
+#     {
+#         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+#         'DIRS': [ BASE_DIR / 'templates' ],
+#         'APP_DIRS': True,
+#         'OPTIONS': {
+#             'context_processors': [
+#                 'django.template.context_processors.debug',
+#                 'django.template.context_processors.request',
+#                 'django.contrib.auth.context_processors.auth',
+#                 'django.contrib.messages.context_processors.messages',
+#             ],
+#         },
+#     },
+# ]
+
+# WSGI_APPLICATION = 'fikirierp.wsgi.application'
+
+
+# # --- DATABASE ---
+
+# # This logic handles both Local (PostgreSQL) and Render (Neon) automatically.
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -446,147 +446,147 @@ WSGI_APPLICATION = 'fikirierp.wsgi.application'
 #     }
 # }
 
-# # Replace the DATABASES section of your settings.py with this
-tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+# # # Replace the DATABASES section of your settings.py with this
+# # tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': tmpPostgres.path.replace('/', ''),
-        'USER': tmpPostgres.username,
-        'PASSWORD': tmpPostgres.password,
-        'HOST': tmpPostgres.hostname,
-        'PORT': 5432,
-        'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
-    }
-}
+# # DATABASES = {
+# #     'default': {
+# #         'ENGINE': 'django.db.backends.postgresql',
+# #         'NAME': tmpPostgres.path.replace('/', ''),
+# #         'USER': tmpPostgres.username,
+# #         'PASSWORD': tmpPostgres.password,
+# #         'HOST': tmpPostgres.hostname,
+# #         'PORT': 5432,
+# #         'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
+# #     }
+# # }
 
-# --- PASSWORD VALIDATION ---
+# # --- PASSWORD VALIDATION ---
 
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
-]
-
-
-# --- INTERNATIONALIZATION ---
-
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Africa/Nairobi'
-USE_I18N = True
-USE_TZ = True
+# AUTH_PASSWORD_VALIDATORS = [
+#     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+#     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+#     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+#     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+# ]
 
 
-# --- STATIC FILES ---
+# # --- INTERNATIONALIZATION ---
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-STATICFILES_DIRS = [ BASE_DIR / 'static' ]
-
-
-# --- MEDIA FILES (Cloudflare R2) ---
-
-if os.environ.get('AWS_ACCESS_KEY_ID'):
-    DEFAULT_FILE_STORAGE = 'fikirierp.storages.MediaStorage'
-    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL')
-    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-    AWS_DEFAULT_ACL = None
-    AWS_S3_FILE_OVERWRITE = False
-    AWS_S3_SIGNATURE_VERSION = 's3v4'
-    AWS_QUERYSTRING_AUTH = False
-else:
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = BASE_DIR / 'media'
+# LANGUAGE_CODE = 'en-us'
+# TIME_ZONE = 'Africa/Nairobi'
+# USE_I18N = True
+# USE_TZ = True
 
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# # --- STATIC FILES ---
+
+# STATIC_URL = 'static/'
+# STATIC_ROOT = BASE_DIR / 'staticfiles'
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# STATICFILES_DIRS = [ BASE_DIR / 'static' ]
 
 
-# --- AUTHENTICATION CONFIG ---
+# # --- MEDIA FILES (Cloudflare R2) ---
 
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-]
-
-LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'account_login'
-ACCOUNT_EMAIL_VERIFICATION = 'optional'
-ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USERNAME_REQUIRED = True
-
-# *** THIS IS THE CRITICAL FIX FOR 403 ERROR ***
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        # ONLY Token authentication. 
-        # We removed SessionAuthentication to prevent CSRF conflicts.
-        'rest_framework.authentication.TokenAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
-}
-
-REST_AUTH = {
-    'USE_TOKEN_AUTHENTICATOR': True,
-}
-REST_SESSION_LOGIN = False 
-
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'access_type': 'online'},
-    }
-}
+# if os.environ.get('AWS_ACCESS_KEY_ID'):
+#     DEFAULT_FILE_STORAGE = 'fikirierp.storages.MediaStorage'
+#     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+#     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+#     AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+#     AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL')
+#     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+#     AWS_DEFAULT_ACL = None
+#     AWS_S3_FILE_OVERWRITE = False
+#     AWS_S3_SIGNATURE_VERSION = 's3v4'
+#     AWS_QUERYSTRING_AUTH = False
+# else:
+#     MEDIA_URL = '/media/'
+#     MEDIA_ROOT = BASE_DIR / 'media'
 
 
-# --- CORS & CSRF ---
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "http://localhost:8080", # Added 8080
-    "http://localhost:8081", # Added 8081
-    "http://127.0.0.1:8080",
-    "http://127.0.0.1:8081",
-    "https://think-3cs9.onrender.com",
-    "https://preview--fikiri-flow.lovable.app",
-]
-
-CORS_ORIGIN_ALLOW_ALL = True 
-
-# Trust these origins for POST requests
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:8080",
-    "http://localhost:8081",
-    "http://127.0.0.1:8080",
-    "http://127.0.0.1:8081",
-    "http://localhost:5173",
-    "https://think-3cs9.onrender.com",
-    "https://preview--fikiri-flow.lovable.app",
-]
+# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# --- EMAIL CONFIGURATION ---
+# # --- AUTHENTICATION CONFIG ---
 
-if not DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = os.getenv('EMAIL_HOST')
-    EMAIL_PORT = os.getenv('EMAIL_PORT')
-    EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
-    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-    DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
-    PRINTER_EMAIL = os.getenv('PRINTER_EMAIL')
-else:
-    # Prints emails to the terminal for testing
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    PRINTER_EMAIL = '73f38dyq@hpeprint.com'
+# AUTHENTICATION_BACKENDS = [
+#     'django.contrib.auth.backends.ModelBackend',
+#     'allauth.account.auth_backends.AuthenticationBackend',
+# ]
+
+# LOGIN_REDIRECT_URL = 'dashboard'
+# LOGOUT_REDIRECT_URL = 'account_login'
+# ACCOUNT_EMAIL_VERIFICATION = 'optional'
+# ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_UNIQUE_EMAIL = True
+# ACCOUNT_USERNAME_REQUIRED = True
+
+# # *** THIS IS THE CRITICAL FIX FOR 403 ERROR ***
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         # ONLY Token authentication. 
+#         # We removed SessionAuthentication to prevent CSRF conflicts.
+#         'rest_framework.authentication.TokenAuthentication',
+#     ],
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.IsAuthenticated',
+#     ],
+# }
+
+# REST_AUTH = {
+#     'USE_TOKEN_AUTHENTICATOR': True,
+# }
+# REST_SESSION_LOGIN = False 
+
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'SCOPE': ['profile', 'email'],
+#         'AUTH_PARAMS': {'access_type': 'online'},
+#     }
+# }
+
+
+# # --- CORS & CSRF ---
+
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://localhost:5173",
+#     "http://localhost:8080", # Added 8080
+#     "http://localhost:8081", # Added 8081
+#     "http://127.0.0.1:8080",
+#     "http://127.0.0.1:8081",
+#     "https://think-3cs9.onrender.com",
+#     "https://preview--fikiri-flow.lovable.app",
+# ]
+
+# CORS_ORIGIN_ALLOW_ALL = True 
+
+# # Trust these origins for POST requests
+# CSRF_TRUSTED_ORIGINS = [
+#     "http://localhost:8080",
+#     "http://localhost:8081",
+#     "http://127.0.0.1:8080",
+#     "http://127.0.0.1:8081",
+#     "http://localhost:5173",
+#     "https://think-3cs9.onrender.com",
+#     "https://preview--fikiri-flow.lovable.app",
+# ]
+
+
+# # --- EMAIL CONFIGURATION ---
+
+# if not DEBUG:
+#     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#     EMAIL_HOST = os.getenv('EMAIL_HOST')
+#     EMAIL_PORT = os.getenv('EMAIL_PORT')
+#     EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
+#     EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+#     EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+#     DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+#     PRINTER_EMAIL = os.getenv('PRINTER_EMAIL')
+# else:
+#     # Prints emails to the terminal for testing
+#     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#     PRINTER_EMAIL = '73f38dyq@hpeprint.com'
